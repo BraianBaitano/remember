@@ -1,0 +1,314 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Помощник VIP</title>
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <style>
+        body { font-family: sans-serif; background: #eef2f3; padding: 10px; max-width: 500px; margin: auto; }
+        .tabs { display: flex; margin-bottom: 15px; gap: 5px; }
+        .tabs button { flex: 1; padding: 12px; cursor: pointer; border: none; background: #7f8c8d; color: white; border-radius: 10px; font-weight: bold; font-size: 13px; }
+        .tabs button.active { background: #2c3e50; }
+
+        .card { 
+            background: white; padding: 15px 85px 15px 15px; border-radius: 12px; 
+            margin-bottom: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); 
+            position: relative; border-left: 6px solid #3498db; 
+            transition: all 0.3s ease;
+        }
+        
+        /* Цвета по приоритету (полоски слева) */
+        .card-high { border-left-color: #e74c3c; }
+        .card-med  { border-left-color: #f39c12; }
+        .card-low  { border-left-color: #27ae60; }
+
+        /* Специальные состояния фонов */
+        .bg-urgent { background: rgba(155, 89, 182, 0.15) !important; border-left-color: #9b59b6 !important; } /* Фиолетовый (сутки до) */
+        .bg-past { background: rgba(46, 204, 113, 0.15) !important; border-left-color: #2ecc71 !important; }   /* Зеленый (наступило) */
+
+        .label-tomorrow { color: #e74c3c; font-weight: bold; font-size: 14px; animation: blink 1.5s infinite; }
+        @keyframes blink { 0% {opacity: 1;} 50% {opacity: 0.5;} 100% {opacity: 1;} }
+
+        input, select { width: 100%; padding: 12px; margin: 5px 0; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; font-size: 16px; }
+        .add-btn { background: #27ae60; color: white; border: none; padding: 15px; width: 100%; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        
+        .del-btn, .edit-btn { position: absolute; top: 12px; padding: 7px 10px; border: none; border-radius: 6px; cursor: pointer; color: white; }
+        .del-btn { right: 10px; background: #e74c3c; }
+        .edit-btn { right: 48px; background: #3498db; }
+        
+        .time-badge { background: #eee; padding: 2px 6px; border-radius: 4px; font-size: 0.85em; color: #555; font-weight: bold; }
+        .search { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; }
+        hr { border: 0; border-top: 1px solid #eee; margin: 15px 0; }
+    </style>
+</head>
+<body>
+
+    <div class="tabs">
+        <button id="b_p" class="active" onclick="showTab('p')">ПЛАНЫ</button>
+        <button id="b_s" onclick="showTab('s')">СКЛАД</button>
+        <button id="b_c" onclick="showTab('c')">СЕРВИС</button>
+    </div>
+
+    <div id="t_p">
+        <div class="card">
+            <b id="p_title">➕ НОВЫЙ ПЛАН</b>
+            <input type="text" id="in_p_t" placeholder="Что сделать?">
+            <div style="display: flex; gap: 5px;">
+                <input type="date" id="in_p_d">
+                <input type="time" id="in_p_tm">
+            </div>
+            <select id="in_p_pri">
+                <option value="3">🔴 Высокий</option>
+                <option value="2" selected>🟡 Средний</option>
+                <option value="1">🟢 Низкий</option>
+            </select>
+            <button class="add-btn" id="p_btn" onclick="savePlan()">СОХРАНИТЬ</button>
+        </div>
+        <input type="text" id="search_p" class="search" placeholder="🔎 Поиск..." onkeyup="render()">
+        <div id="list_p"></div>
+    </div>
+
+    <div id="t_s" style="display:none">
+        <div class="card">
+            <b id="s_title">📦 ГДЕ ЛЕЖИТ?</b>
+            <input type="text" id="in_s_i" placeholder="Вещь">
+            <input type="text" id="in_s_l" placeholder="Место">
+            <button class="add-btn" id="s_btn" onclick="saveStorage()">ЗАПИСАТЬ</button>
+        </div>
+        <input type="text" id="search_s" class="search" placeholder="🔎 Поиск..." onkeyup="render()">
+        <div id="list_s"></div>
+    </div>
+
+    <div id="t_c" style="display:none">
+        <div class="card">
+            <b>📲 ПРИЛОЖЕНИЕ</b>
+            <button class="add-btn" style="background:#f39c12" onclick="installInfo()">УСТАНОВИТЬ ЯРЛЫК НА ЭКРАН</button>
+            <hr>
+            <b>💾 ДАННЫЕ</b>
+            <div style="display: flex; gap: 8px; flex-direction: column;">
+                <button class="add-btn" style="background:#2980b9" onclick="download()">СКАЧАТЬ ФАЙЛ</button>
+                <button class="add-btn" style="background:#2ecc71" onclick="shareBackup()">ОТПРАВИТЬ (TG/VIBER)</button>
+            </div>
+            <p>Восстановить:</p>
+            <input type="file" onchange="upload(event)">
+            <hr>
+            <button class="add-btn" style="background:#8e44ad" onclick="requestNotif()">🔔 ВКЛЮЧИТЬ ЗВУК</button>
+        </div>
+    </div>
+
+    <audio id="alarmSound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
+
+    <script>
+        let editPlanId = null;
+        let editStorageId = null;
+
+        function showTab(tab) {
+            ['t_p', 't_s', 't_c'].forEach(id => document.getElementById(id).style.display = 'none');
+            ['b_p', 'b_s', 'b_c'].forEach(id => document.getElementById(id).className = '');
+            document.getElementById('t_' + tab).style.display = 'block';
+            document.getElementById('b_' + tab).className = 'active';
+        }
+
+        function installInfo() {
+            alert("Чтобы создать ярлык:\n1. Нажмите на 3 точки (или стрелочку) в меню браузера.\n2. Выберите 'Добавить на главный экран' или 'Установить приложение'.\n\nТеперь помощник будет запускаться как обычное приложение!");
+        }
+
+        function savePlan() {
+            const txt = document.getElementById('in_p_t').value.trim();
+            const dat = document.getElementById('in_p_d').value;
+            const tim = document.getElementById('in_p_tm').value;
+            const pri = parseInt(document.getElementById('in_p_pri').value);
+            if(!txt) return alert("Введите текст!");
+
+            let data = JSON.parse(localStorage.getItem('plans') || '[]');
+            if(editPlanId) {
+                const idx = data.findIndex(i => i.id === editPlanId);
+                data[idx] = { ...data[idx], t: txt, d: dat, tm: tim, pri: pri };
+                editPlanId = null;
+                document.getElementById('p_title').innerText = "➕ НОВЫЙ ПЛАН";
+                document.getElementById('p_btn').innerText = "СОХРАНИТЬ";
+            } else {
+                data.push({ id: Date.now(), t: txt, d: dat, tm: tim, pri: pri, notified: false });
+            }
+            localStorage.setItem('plans', JSON.stringify(data));
+            document.getElementById('in_p_t').value = '';
+            document.activeElement.blur();
+            render();
+        }
+
+        function render() {
+            const plans = JSON.parse(localStorage.getItem('plans') || '[]');
+            const storage = JSON.parse(localStorage.getItem('storage') || '[]');
+            const sP = document.getElementById('search_p').value.toLowerCase();
+            const sS = document.getElementById('search_s').value.toLowerCase();
+            
+            const now = new Date();
+            const tomorrow = new Date();
+            tomorrow.setDate(now.getDate() + 1);
+            const tomorrowStr = tomorrow.toISOString().split('T')[0];
+
+            let h_p = '';
+            // Сортировка: сначала пустые даты, потом по времени
+            const sortedP = [...plans].sort((a,b) => (a.d + a.tm).localeCompare(b.d + b.tm));
+
+            sortedP.forEach(item => {
+                if (sP && !item.t.toLowerCase().includes(sP)) return;
+                
+                let extraCls = '';
+                let tomorrowLabel = '';
+                
+                if (item.d) {
+                    const eventDate = new Date(item.d + 'T' + (item.tm || '00:00'));
+                    const diffMs = eventDate - now;
+                    const diffHours = diffMs / (1000 * 60 * 60);
+
+                    if (item.d === tomorrowStr) tomorrowLabel = '<span class="label-tomorrow">ЗАВТРА!</span> ';
+                    
+                    if (diffMs < 0) {
+                        extraCls = 'bg-past'; // Событие прошло
+                    } else if (diffHours <= 24) {
+                        extraCls = 'bg-urgent'; // Осталось меньше суток
+                    }
+                }
+
+                const priCls = item.pri === 3 ? 'card-high' : item.pri === 2 ? 'card-med' : 'card-low';
+                
+                h_p += `<div class="card ${priCls} ${extraCls}">
+                    <button class="edit-btn" onclick="editPlan(${item.id})">✏️</button>
+                    <button class="del-btn" onclick="removeItem('p', ${item.id})">X</button>
+                    ${tomorrowLabel}<b>${item.t}</b><br>
+                    <small>📅 ${item.d || '--'} <span class="time-badge">⏰ ${item.tm || '--:--'}</span></small>
+                </div>`;
+            });
+            document.getElementById('list_p').innerHTML = h_p || '<p style="text-align:center">Нет планов</p>';
+
+            // Склад (без изменений визуализации фона)
+            let h_s = '';
+            storage.forEach(item => {
+                if (sS && !(item.i + item.l).toLowerCase().includes(sS)) return;
+                h_s += `<div class="card">
+                    <button class="edit-btn" onclick="editS(${item.id})">✏️</button>
+                    <button class="del-btn" onclick="removeItem('s', ${item.id})">X</button>
+                    <b>📦 ${item.i}</b><br><small>Где: ${item.l || '—'}</small>
+                </div>`;
+            });
+            document.getElementById('list_s').innerHTML = h_s || '<p style="text-align:center">Пусто</p>';
+        }
+
+        // Остальные функции (removeItem, editPlan, saveStorage, editS, download, upload, shareBackup, requestNotif, setInterval)
+        // Копируем их из предыдущей версии без изменений функционала
+        
+        function editPlan(id) {
+            let data = JSON.parse(localStorage.getItem('plans') || '[]');
+            const item = data.find(i => i.id === id);
+            if(!item) return;
+            document.getElementById('in_p_t').value = item.t;
+            document.getElementById('in_p_d').value = item.d || '';
+            document.getElementById('in_p_tm').value = item.tm || '';
+            document.getElementById('in_p_pri').value = item.pri;
+            editPlanId = id;
+            document.getElementById('p_title').innerText = "✏️ РЕДАКТИРОВАТЬ ПЛАН";
+            document.getElementById('p_btn').innerText = "ОБНОВИТЬ";
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+        function saveStorage() {
+            const itm = document.getElementById('in_s_i').value.trim();
+            const loc = document.getElementById('in_s_l').value.trim();
+            if(!itm) return alert("Введите название!");
+            let data = JSON.parse(localStorage.getItem('storage') || '[]');
+            if(editStorageId) {
+                const idx = data.findIndex(i => i.id === editStorageId);
+                data[idx] = { ...data[idx], i: itm, l: loc };
+                editStorageId = null;
+                document.getElementById('s_title').innerText = "📦 ГДЕ ЛЕЖИТ?";
+                document.getElementById('s_btn').innerText = "ЗАПИСАТЬ";
+            } else {
+                data.push({ id: Date.now(), i: itm, l: loc });
+            }
+            localStorage.setItem('storage', JSON.stringify(data));
+            document.getElementById('in_s_i').value = '';
+            document.getElementById('in_s_l').value = '';
+            document.activeElement.blur();
+            render();
+        }
+
+        function editS(id) {
+            let data = JSON.parse(localStorage.getItem('storage') || '[]');
+            const item = data.find(i => i.id === id);
+            if(!item) return;
+            document.getElementById('in_s_i').value = item.i;
+            document.getElementById('in_s_l').value = item.l;
+            editStorageId = id;
+            document.getElementById('s_title').innerText = "✏️ ИЗМЕНИТЬ ЗАПИСЬ";
+            document.getElementById('s_btn').innerText = "ОБНОВИТЬ";
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+        function removeItem(type, id) {
+            if(!confirm("Удалить?")) return;
+            const key = (type === 'p' ? 'plans' : 'storage');
+            let data = JSON.parse(localStorage.getItem(key) || '[]');
+            localStorage.setItem(key, JSON.stringify(data.filter(item => item.id !== id)));
+            render();
+        }
+
+        setInterval(() => {
+            const now = new Date();
+            const d = now.toISOString().split('T')[0];
+            const t = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+            let data = JSON.parse(localStorage.getItem('plans') || '[]');
+            let upd = false;
+            data.forEach(i => {
+                if(i.d === d && i.tm === t && !i.notified) {
+                    document.getElementById('alarmSound').play();
+                    if (Notification.permission === "granted") new Notification("Напоминание!", { body: i.t });
+                    else alert("ПОРА: " + i.t);
+                    i.notified = true;
+                    upd = true;
+                }
+            });
+            if(upd) { localStorage.setItem('plans', JSON.stringify(data)); render(); }
+        }, 20000);
+
+        function download() {
+            const data = {p: JSON.parse(localStorage.getItem('plans')||'[]'), s: JSON.parse(localStorage.getItem('storage')||'[]')};
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(new Blob([JSON.stringify(data)], {type:'text/plain'}));
+            a.download = `backup_${new Date().toISOString().slice(0,10)}.txt`;
+            a.click();
+        }
+
+        async function shareBackup() {
+            const data = {p: JSON.parse(localStorage.getItem('plans')||'[]'), s: JSON.parse(localStorage.getItem('storage')||'[]')};
+            const file = new File([JSON.stringify(data)], "backup.txt", { type: 'text/plain' });
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                await navigator.share({ files: [file], title: 'Бэкап' });
+            } else alert("Не поддерживается браузером.");
+        }
+
+        function upload(e) {
+            const r = new FileReader();
+            r.onload = (ev) => {
+                const d = JSON.parse(ev.target.result);
+                localStorage.setItem('plans', JSON.stringify(d.p || []));
+                localStorage.setItem('storage', JSON.stringify(d.s || []));
+                render();
+            };
+            r.readAsText(e.target.files[0]);
+        }
+
+        function requestNotif() {
+            Notification.requestPermission();
+            const audio = document.getElementById('alarmSound');
+            audio.play().then(() => audio.pause());
+            alert("Звук активирован");
+        }
+
+        render();
+    </script>
+</body>
+</html>
