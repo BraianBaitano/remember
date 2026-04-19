@@ -120,6 +120,7 @@
     • <i>20.04.26 15:00 Важное дело</i><br>
     • <b>.</b> (планы) | <b>..</b> (склад)<br>
     • <b>- молоток</b> (поиск на складе)
+    • <b>+ молоток лежит в гараже</b> (добавить запись в склад)
 </div>
                 <p style="font-size: 13px;">Введите ваш Telegram ID, чтобы бот присылал напоминания:</p>
                 <input type="number" id="in_tg_id" placeholder="Ваш ID (например: 12345678)" onchange="saveTgId()">
@@ -358,5 +359,11 @@
             });
         }, 30000);
     </script>
+    <script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js');
+  }
+</script>
+<link rel="manifest" href="manifest.json">
 </body>
 </html>
