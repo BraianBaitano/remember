@@ -3,51 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Помощник VIP (Cloud)</title>
+    <title>Помощник VIP 2.0</title>
     <style>
-        body { font-family: sans-serif; background: #eef2f3; padding: 10px; max-width: 500px; margin: auto; }
-        
-        /* Стили для экрана входа */
-        #login-screen { 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            height: 90vh; text-align: center; 
-        }
-        .google-btn { 
-            background: #4285F4; color: white; border: none; padding: 15px 25px; 
-            border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        :root {
+            --bg-color: #eef2f3;
+            --card-bg: #ffffff;
+            --text-color: #2c3e50;
+            --accent-color: #3498db;
+            --border-color: #ccc;
         }
 
-        /* Твои старые стили */
+        body.dark-mode {
+            --bg-color: #1a1a1a;
+            --card-bg: #2d2d2d;
+            --text-color: #ecf0f1;
+            --accent-color: #3498db;
+            --border-color: #444;
+        }
+
+        body { font-family: sans-serif; background: var(--bg-color); color: var(--text-color); padding: 10px; max-width: 500px; margin: auto; transition: 0.3s; }
+        
+        #login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 90vh; text-align: center; }
+        .google-btn { background: #4285F4; color: white; border: none; padding: 15px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+
+        .header-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .theme-toggle { background: none; border: 1px solid var(--border-color); color: var(--text-color); padding: 5px 10px; border-radius: 20px; cursor: pointer; font-size: 14px; }
+
         .tabs { display: flex; margin-bottom: 15px; gap: 5px; }
         .tabs button { flex: 1; padding: 12px; cursor: pointer; border: none; background: #7f8c8d; color: white; border-radius: 10px; font-weight: bold; font-size: 13px; }
         .tabs button.active { background: #2c3e50; }
-        .card { background: white; padding: 15px 85px 15px 15px; border-radius: 12px; margin-bottom: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative; border-left: 6px solid #3498db; }
+
+        .card { background: var(--card-bg); padding: 15px; border-radius: 12px; margin-bottom: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative; border-left: 6px solid var(--accent-color); }
         .card-high { border-left-color: #e74c3c; }
         .card-med  { border-left-color: #f39c12; }
         .card-low  { border-left-color: #27ae60; }
         .bg-urgent { background: rgba(155, 89, 182, 0.15) !important; border-left-color: #9b59b6 !important; }
         .bg-past { background: rgba(46, 204, 113, 0.15) !important; border-left-color: #2ecc71 !important; }
-        input, select { width: 100%; padding: 12px; margin: 5px 0; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; font-size: 16px; }
+
+        .category-badge { background: #34495e; color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px; margin-right: 5px; vertical-align: middle; }
+
+        input, select { width: 100%; padding: 12px; margin: 5px 0; border-radius: 8px; border: 1px solid var(--border-color); box-sizing: border-box; font-size: 16px; background: var(--card-bg); color: var(--text-color); }
         .add-btn { background: #27ae60; color: white; border: none; padding: 15px; width: 100%; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; }
         .del-btn, .edit-btn { position: absolute; top: 12px; padding: 7px 10px; border: none; border-radius: 6px; cursor: pointer; color: white; }
         .del-btn { right: 10px; background: #e74c3c; }
         .edit-btn { right: 48px; background: #3498db; }
-        .search { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; }
+        .search { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid var(--border-color); font-size: 16px; background: var(--card-bg); color: var(--text-color); }
     </style>
 </head>
 <body>
 
     <div id="login-screen">
-        <h1 style="color: #2c3e50;">BaiTan Helper</h1>
-        <p>Ваши данные хранятся в облаке.<br>Войдите, чтобы продолжить.</p>
+        <h1 style="color: var(--text-color);">BaiTan Helper 2.0</h1>
         <button class="google-btn" id="btn-login">Войти через Google</button>
     </div>
 
     <div id="app-screen" style="display:none">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <small id="user-info" style="color: #7f8c8d;"></small>
-            <button onclick="logout()" style="background:none; border:none; color: #e74c3c; cursor:pointer; text-decoration: underline;">Выйти</button>
+        <div class="header-controls">
+            <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">🌙 Темная тема</button>
+            <button onclick="logout()" style="background:none; border:none; color: #e74c3c; cursor:pointer; font-size: 14px;">Выйти</button>
         </div>
 
         <div class="tabs">
@@ -78,8 +91,15 @@
         <div id="t_s" style="display:none">
             <div class="card">
                 <b id="s_title">📦 ГДЕ ЛЕЖИТ?</b>
-                <input type="text" id="in_s_i" placeholder="Вещь">
+                <input type="text" id="in_s_i" placeholder="Название вещи">
                 <input type="text" id="in_s_l" placeholder="Место">
+                <select id="in_s_cat">
+                    <option value="Общее">📁 Общее</option>
+                    <option value="Инструменты">🛠 Инструменты</option>
+                    <option value="Запчасти">⚙️ Запчасти</option>
+                    <option value="Электроника">🔌 Электроника</option>
+                    <option value="Дом">🏠 Дом</option>
+                </select>
                 <button class="add-btn" id="s_btn" onclick="saveStorage()">ЗАПИСАТЬ В ОБЛАКО</button>
             </div>
             <input type="text" id="search_s" class="search" placeholder="🔎 Поиск..." onkeyup="render()">
@@ -88,11 +108,14 @@
 
         <div id="t_c" style="display:none">
             <div class="card">
-                <b>💾 ОБЛАЧНЫЕ ДАННЫЕ</b>
-                <p>Ваши данные автоматически синхронизируются с сервером во Франкфурте.</p>
-                <button class="add-btn" style="background:#2980b9" onclick="download()">СКАЧАТЬ БЭКАП НА ДИСК</button>
-                <hr>
-                <button class="add-btn" style="background:#8e44ad" onclick="requestNotif()">🔔 ПРОВЕРИТЬ ЗВУК</button>
+                <b>🤖 ТЕЛЕГРАМ БОТ</b>
+                <p style="font-size: 13px;">Введите ваш Telegram ID, чтобы бот присылал напоминания:</p>
+                <input type="number" id="in_tg_id" placeholder="Ваш ID (например: 12345678)" onchange="saveTgId()">
+                <small>Узнать свой ID можно в боте @userinfobot</small>
+                <hr style="margin: 15px 0; border: 0; border-top: 1px solid var(--border-color);">
+                <b>💾 УПРАВЛЕНИЕ</b>
+                <button class="add-btn" style="background:#2980b9; margin-bottom: 5px;" onclick="download()">СКАЧАТЬ БЭКАП</button>
+                <button class="add-btn" style="background:#8e44ad" onclick="requestNotif()">🔔 ТЕСТ ЗВУКА</button>
             </div>
         </div>
     </div>
@@ -118,13 +141,22 @@
         const db = getFirestore(app);
         const provider = new GoogleAuthProvider();
 
-        // Глобальные переменные данных
         window.plans = [];
         window.storage = [];
+        window.tgId = "";
         let editPlanId = null;
         let editStorageId = null;
 
-        // Авторизация
+        // Тема
+        window.toggleTheme = () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            document.getElementById('theme-btn').innerText = isDark ? "☀️ Светлая тема" : "🌙 Темная тема";
+        }
+        if(localStorage.getItem('theme') === 'dark') toggleTheme();
+
+        // Auth
         document.getElementById('btn-login').onclick = () => signInWithPopup(auth, provider);
         window.logout = () => signOut(auth);
 
@@ -132,7 +164,6 @@
             if (user) {
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('app-screen').style.display = 'block';
-                document.getElementById('user-info').innerText = "Аккаунт: " + user.email;
                 await loadData();
             } else {
                 document.getElementById('login-screen').style.display = 'flex';
@@ -140,7 +171,6 @@
             }
         });
 
-        // Загрузка из Firebase
         async function loadData() {
             const user = auth.currentUser;
             const docRef = doc(db, "users_data", user.uid);
@@ -149,22 +179,28 @@
                 const data = docSnap.data();
                 window.plans = data.plans || [];
                 window.storage = data.storage || [];
+                window.tgId = data.tgId || "";
+                document.getElementById('in_tg_id').value = window.tgId;
                 render();
             }
         }
 
-        // Сохранение в Firebase
         async function syncWithCloud() {
             const user = auth.currentUser;
             if (!user) return;
             await setDoc(doc(db, "users_data", user.uid), {
                 plans: window.plans,
                 storage: window.storage,
+                tgId: window.tgId,
                 lastSync: new Date()
             });
         }
 
-        // ТВОИ ФУНКЦИИ (адаптированные под Firebase)
+        window.saveTgId = async () => {
+            window.tgId = document.getElementById('in_tg_id').value;
+            await syncWithCloud();
+        }
+
         window.showTab = (tab) => {
             ['t_p', 't_s', 't_c'].forEach(id => document.getElementById(id).style.display = 'none');
             ['b_p', 'b_s', 'b_c'].forEach(id => document.getElementById(id).className = '');
@@ -195,15 +231,16 @@
         window.saveStorage = async () => {
             const itm = document.getElementById('in_s_i').value.trim();
             const loc = document.getElementById('in_s_l').value.trim();
-            if(!itm) return alert("Введите название!");
+            const cat = document.getElementById('in_s_cat').value;
+            if(!itm) return alert("Название!");
 
             if(editStorageId) {
                 const idx = window.storage.findIndex(i => i.id === editStorageId);
-                window.storage[idx] = { ...window.storage[idx], i: itm, l: loc };
+                window.storage[idx] = { ...window.storage[idx], i: itm, l: loc, cat: cat };
                 editStorageId = null;
                 document.getElementById('s_title').innerText = "📦 ГДЕ ЛЕЖИТ?";
             } else {
-                window.storage.push({ id: Date.now(), i: itm, l: loc });
+                window.storage.push({ id: Date.now(), i: itm, l: loc, cat: cat });
             }
             await syncWithCloud();
             document.getElementById('in_s_i').value = '';
@@ -229,22 +266,21 @@
             const sortedP = [...window.plans].sort((a,b) => (a.d + a.tm).localeCompare(b.d + b.tm));
             sortedP.forEach(item => {
                 if (sP && !item.t.toLowerCase().includes(sP)) return;
-                let extraCls = '', tomorrowLabel = '';
+                let extraCls = '', tom = '';
                 if (item.d) {
-                    const eventDate = new Date(item.d + 'T' + (item.tm || '00:00'));
-                    if (item.d === tomorrowStr) tomorrowLabel = '<span class="label-tomorrow">ЗАВТРА!</span> ';
-                    if (eventDate - now < 0) extraCls = 'bg-past';
-                    else if ((eventDate - now) / 3600000 <= 24) extraCls = 'bg-urgent';
+                    const ev = new Date(item.d + 'T' + (item.tm || '00:00'));
+                    if (item.d === tomorrowStr) tom = '<span style="color:red; font-weight:bold;">ЗАВТРА! </span>';
+                    if (ev - now < 0) extraCls = 'bg-past';
+                    else if ((ev - now) / 3600000 <= 24) extraCls = 'bg-urgent';
                 }
-                const priCls = item.pri === 3 ? 'card-high' : item.pri === 2 ? 'card-med' : 'card-low';
-                h_p += `<div class="card ${priCls} ${extraCls}">
+                const pCls = item.pri === 3 ? 'card-high' : item.pri === 2 ? 'card-med' : 'card-low';
+                h_p += `<div class="card ${pCls} ${extraCls}">
                     <button class="edit-btn" onclick="editPlan(${item.id})">✏️</button>
                     <button class="del-btn" onclick="removeItem('p', ${item.id})">X</button>
-                    ${tomorrowLabel}<b>${item.t}</b><br>
-                    <small>📅 ${item.d || '--'} <span class="time-badge">⏰ ${item.tm || '--:--'}</span></small>
+                    ${tom}<b>${item.t}</b><br><small>📅 ${item.d || '--'} ⏰ ${item.tm || '--:--'}</small>
                 </div>`;
             });
-            document.getElementById('list_p').innerHTML = h_p || '<p style="text-align:center">Нет планов</p>';
+            document.getElementById('list_p').innerHTML = h_p || '<p>Список пуст</p>';
 
             let h_s = '';
             window.storage.forEach(item => {
@@ -252,40 +288,49 @@
                 h_s += `<div class="card">
                     <button class="edit-btn" onclick="editS(${item.id})">✏️</button>
                     <button class="del-btn" onclick="removeItem('s', ${item.id})">X</button>
-                    <b>📦 ${item.i}</b><br><small>Где: ${item.l || '—'}</small>
+                    <span class="category-badge">${item.cat || 'Общее'}</span><b>${item.i}</b><br>
+                    <small>📍 ${item.l || '—'}</small>
                 </div>`;
             });
-            document.getElementById('list_s').innerHTML = h_s || '<p style="text-align:center">Пусто</p>';
+            document.getElementById('list_s').innerHTML = h_s || '<p>Склад пуст</p>';
         }
 
         window.editPlan = (id) => {
-            const item = window.plans.find(i => i.id === id);
-            document.getElementById('in_p_t').value = item.t;
-            document.getElementById('in_p_d').value = item.d;
-            document.getElementById('in_p_tm').value = item.tm;
-            document.getElementById('in_p_pri').value = item.pri;
+            const i = window.plans.find(x => x.id === id);
+            document.getElementById('in_p_t').value = i.t;
+            document.getElementById('in_p_d').value = i.d;
+            document.getElementById('in_p_tm').value = i.tm;
+            document.getElementById('in_p_pri').value = i.pri;
             editPlanId = id;
-            document.getElementById('p_title').innerText = "✏️ РЕДАКТИРОВАТЬ";
+            document.getElementById('p_title').innerText = "✏️ РЕДАКТИРОВАНИЕ";
             window.scrollTo(0,0);
         }
 
         window.editS = (id) => {
-            const item = window.storage.find(i => i.id === id);
-            document.getElementById('in_s_i').value = item.i;
-            document.getElementById('in_s_l').value = item.l;
+            const i = window.storage.find(x => x.id === id);
+            document.getElementById('in_s_i').value = i.i;
+            document.getElementById('in_s_l').value = i.l;
+            document.getElementById('in_s_cat').value = i.cat || 'Общее';
             editStorageId = id;
-            document.getElementById('s_title').innerText = "✏️ РЕДАКТИРОВАТЬ";
+            document.getElementById('s_title').innerText = "✏️ РЕДАКТИРОВАНИЕ";
             window.scrollTo(0,0);
+        }
+
+        window.download = () => {
+            const data = {p: window.plans, s: window.storage, tg: window.tgId};
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(new Blob([JSON.stringify(data)], {type:'text/plain'}));
+            a.download = `backup_${new Date().toISOString().slice(0,10)}.txt`;
+            a.click();
         }
 
         window.requestNotif = () => {
             Notification.requestPermission();
             const audio = document.getElementById('alarmSound');
             audio.play().then(() => audio.pause());
-            alert("Звук активирован");
+            alert("Звук проверен");
         }
 
-        // Таймер уведомлений
         setInterval(() => {
             const now = new Date();
             const d = now.toISOString().split('T')[0];
@@ -293,7 +338,7 @@
             window.plans.forEach(async (i) => {
                 if(i.d === d && i.tm === t && !i.notified) {
                     document.getElementById('alarmSound').play();
-                    alert("ПОРА: " + i.t);
+                    alert("НАПОМИНАНИЕ: " + i.t);
                     i.notified = true;
                     await syncWithCloud();
                     render();
