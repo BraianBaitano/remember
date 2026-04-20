@@ -38,7 +38,7 @@
         .tabs button { flex: 1; padding: 12px; cursor: pointer; border: none; background: #7f8c8d; color: white; border-radius: 10px; font-weight: bold; font-size: 13px; }
         .tabs button.active { background: #2c3e50; }
 
-        .card { background: var(--card-bg); padding: 15px; border-radius: 12px; margin-bottom: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative; border-left: 6px solid var(--accent-color); }
+        .card { background: var(--card-bg); padding: 15px; padding-right: 90px; border-radius: 12px; margin-bottom: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative; border-left: 6px solid var(--accent-color); word-wrap: break-word; }
         .card-high { border-left-color: #e74c3c; }
         .card-med  { border-left-color: #f39c12; }
         .card-low  { border-left-color: #27ae60; }
@@ -357,10 +357,12 @@ import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/f
 
         const pCls = item.pri === 3 ? 'card-high' : item.pri === 2 ? 'card-med' : 'card-low';
         h_p += `<div class="card ${pCls} ${extraCls}">
-            <button class="edit-btn" onclick="editPlan('${escapeHTML(String(item.id))}')">✏️</button>
-            <button class="del-btn" onclick="removeItem('p', '${escapeHTML(String(item.id))}')">X</button>
-            ${statusLabel}<b>${escapeHTML(item.t)}</b><br><small>📅 ${escapeHTML(item.d || '--')} ⏰ ${escapeHTML(item.tm || '--:--')}</small>
-        </div>`;
+    <button class="edit-btn" onclick="editPlan('${escapeHTML(String(item.id))}')">✏️</button>
+    <button class="del-btn" onclick="removeItem('p', '${escapeHTML(String(item.id))}')">X</button>
+    
+    <div>${statusLabel}<b style="display: inline-block; vertical-align: top;">${escapeHTML(item.t)}</b></div>
+    <small style="display: block; margin-top: 5px;">📅 ${escapeHTML(item.d || '--')} ⏰ ${escapeHTML(item.tm || '--:--')}</small>
+</div>`;
     });
     
         document.getElementById('list_p').innerHTML = h_p || '<p>Список пуст</p>';
