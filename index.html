@@ -125,12 +125,11 @@
                     • <b>+ молоток лежит в гараже</b> (добавить запись в склад)
                 </div>
                 <p style="font-size: 13px;">Синхронизация активна для ID:</p>
-                <p style="font-size: 13px;">Синхронизация активна для ID:</p>
 <div style="display: flex; gap: 5px;">
     <input type="number" id="in_tg_id" placeholder="Ваш Telegram ID" style="background: rgba(0,0,0,0.05); flex: 1;">
     <button onclick="saveTgId()" style="padding: 10px; background: #27ae60; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">ОК</button>
 </div>
-<small style="display:block; margin-top:5px; color: #7f8c8d;">Узнать свой ID можно у бота @userinfobot</small>
+<small style="display:block; margin-top:5px; color: #7f8c8d;">Узнать свой ID можно у бота @userinfobot , бот помошник - @VipSklad2_bot </small>
                 <hr style="margin: 15px 0; border: 0; border-top: 1px solid var(--border-color);">
                 <b>💾 УПРАВЛЕНИЕ</b>
                 <button class="add-btn" style="background:#2980b9; margin-bottom: 5px;" onclick="download()">СКАЧАТЬ БЭКАП</button>
@@ -142,6 +141,13 @@
     <audio id="alarmSound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
 
     <script type="module">
+        function escapeHTML(str) {
+    const div = document.createElement('div');
+    div.appendChild(document.createTextNode(str));
+    return div.innerHTML;
+}
+```No response
+
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
     import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -290,23 +296,20 @@
         alert("Введите ваш Telegram ID");
         return;
     }
+    // Добавьте эту проверку
+    if (!/^\d+$/.test(tgIdValue)) { // Проверяет, состоит ли строка только из цифр
+        alert("Telegram ID должен быть числовым значением!");
+        return;
+    }
 
     try {
-        // Используем setDoc с { merge: true }
-        // Принудительно создаем пустые массивы, если это новый юзер
-        await setDoc(doc(db, "users_data", currentUid), {
-            tgId: String(tgIdValue),
-            plans: window.plans || [],     // Если на сайте пусто, запишет []
-            storage: window.storage || [], // Если на сайте пусто, запишет []
-            lastSync: new Date()
-        }, { merge: true });
-        
-        alert("✅ Telegram ID привязан! Теперь бот активен.");
+        // ... остальная часть функции ...
     } catch (e) {
         console.error("Ошибка:", e);
         alert("Ошибка при сохранении");
     }
 };
+
 
     window.render = () => {
         const sP = document.getElementById('search_p').value.toLowerCase();
@@ -317,7 +320,7 @@
         let h_p = '';
         const sortedP = [...window.plans].sort((a,b) => (a.d + a.tm).localeCompare(b.d + b.tm));
         sortedP.forEach(item => {
-            if (sP && !item.t.toLowerCase().includes(sP)) return;
+            if (sP && !escapeHTML(item.t).toLowerCase().includes(sP)) return; // <-- Здесь тоже нужно экранировать для поиска
             let extraCls = '', tom = '';
             if (item.d) {
                 const ev = new Date(item.d + 'T' + (item.tm || '00:00'));
@@ -327,21 +330,23 @@
             }
             const pCls = item.pri === 3 ? 'card-high' : item.pri === 2 ? 'card-med' : 'card-low';
             h_p += `<div class="card ${pCls} ${extraCls}">
-                <button class="edit-btn" onclick="editPlan('${item.id}')">✏️</button>
-                <button class="del-btn" onclick="removeItem('p', '${item.id}')">X</button>
-                ${tom}<b>${item.t}</b><br><small>📅 ${item.d || '--'} ⏰ ${item.tm || '--:--'}</small>
+                <button class="edit-btn" onclick="editPlan('${escapeHTML(String(item.id))}')">✏️</button>
+                <button class="del-btn" onclick="removeItem('p', '${escapeHTML(String(item.id))}')">X</button>
+                ${tom}<b>${escapeHTML(item.t)}</b><br><small>📅 ${escapeHTML(item.d || '--')} ⏰ ${escapeHTML(item.tm || '--:--')}</small>
             </div>`;
         });
         document.getElementById('list_p').innerHTML = h_p || '<p>Список пуст</p>';
+           
 
         let h_s = '';
         window.storage.forEach(item => {
-            if (sS && !(item.i + item.l).toLowerCase().includes(sS)) return;
+            // Экранируем данные для поиска
+            if (sS && !(escapeHTML(item.i) + escapeHTML(item.l)).toLowerCase().includes(sS)) return;
             h_s += `<div class="card">
-                <button class="edit-btn" onclick="editS('${item.id}')">✏️</button>
-                <button class="del-btn" onclick="removeItem('s', '${item.id}')">X</button>
-                <span class="category-badge">${item.cat || 'Общее'}</span><b>${item.i}</b><br>
-                <small>📍 ${item.l || '—'}</small>
+                <button class="edit-btn" onclick="editS('${escapeHTML(String(item.id))}')">✏️</button>
+                <button class="del-btn" onclick="removeItem('s', '${escapeHTML(String(item.id))}')">X</button>
+                <span class="category-badge">${escapeHTML(item.cat || 'Общее')}</span><b>${escapeHTML(item.i)}</b><br>
+                <small>📍 ${escapeHTML(item.l || '—')}</small>
             </div>`;
         });
         document.getElementById('list_s').innerHTML = h_s || '<p>Склад пуст</p>';
