@@ -147,9 +147,9 @@
     return div.innerHTML;
 }
 
-import { initializeApp } from "[https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js](https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js)";
-    import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyD2BEG9Iuwn_B4QypbNcUnE-AwFV8BG1lg",
@@ -295,16 +295,21 @@ import { initializeApp } from "[https://www.gstatic.com/firebasejs/10.8.0/fireba
         alert("Введите ваш Telegram ID");
         return;
     }
-    // Добавьте эту проверку
-    if (!/^\d+$/.test(tgIdValue)) { // Проверяет, состоит ли строка только из цифр
+    if (!/^\d+$/.test(tgIdValue)) {
         alert("Telegram ID должен быть числовым значением!");
         return;
     }
 
     try {
-        // ... остальная часть функции ...
+        // Используем setDoc с { merge: true }, чтобы не затереть склад и планы
+        await setDoc(doc(db, "users_data", currentUid), {
+            tgId: tgIdValue,
+            lastSync: new Date()
+        }, { merge: true });
+
+        alert("Telegram ID успешно привязан!");
     } catch (e) {
-        console.error("Ошибка:", e);
+        console.error("Ошибка сохранения TG ID:", e);
         alert("Ошибка при сохранении");
     }
 };
