@@ -292,15 +292,18 @@
     }
 
     try {
-        // Мы используем setDoc с { merge: true }, чтобы не затереть склад и планы
+        // Используем setDoc с { merge: true }
+        // Принудительно создаем пустые массивы, если это новый юзер
         await setDoc(doc(db, "users_data", currentUid), {
-            tgId: tgIdValue,
+            tgId: String(tgIdValue),
+            plans: window.plans || [],     // Если на сайте пусто, запишет []
+            storage: window.storage || [], // Если на сайте пусто, запишет []
             lastSync: new Date()
         }, { merge: true });
         
-        alert("Telegram ID успешно привязан!");
+        alert("✅ Telegram ID привязан! Теперь бот активен.");
     } catch (e) {
-        console.error("Ошибка сохранения TG ID:", e);
+        console.error("Ошибка:", e);
         alert("Ошибка при сохранении");
     }
 };
