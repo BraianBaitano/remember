@@ -125,7 +125,7 @@
                     • <b>+ молоток лежит в гараже</b> (добавить запись в склад)
                 </div>
                 <p style="font-size: 13px;">Синхронизация активна для ID:</p>
-                <input type="number" id="in_tg_id" value="445810608" readonly style="background: rgba(0,0,0,0.05);">
+                <input type="number" id="in_tg_id" placeholder="Введите ваш Telegram ID" style="background: rgba(0,0,0,0.05);">
                 <hr style="margin: 15px 0; border: 0; border-top: 1px solid var(--border-color);">
                 <b>💾 УПРАВЛЕНИЕ</b>
                 <button class="add-btn" style="background:#2980b9; margin-bottom: 5px;" onclick="download()">СКАЧАТЬ БЭКАП</button>
@@ -184,15 +184,21 @@
             
             // Слушаем только папку текущего юзера
             onSnapshot(doc(db, "users_data", currentUid), (snap) => {
-                if (snap.exists()) {
-                    const d = snap.data();
-                    window.plans = d.plans || [];
-                    window.storage = d.storage || [];
-                    // Если в базе сохранен TG ID, показываем его в настройках
-                    if(d.tgId) document.getElementById('in_tg_id').value = d.tgId;
-                    render();
-                }
-            });
+    if (snap.exists()) {
+        const d = snap.data();
+        window.plans = d.plans || [];
+        window.storage = d.storage || [];
+        // Если ID есть в базе — ставим его, если нет — очищаем поле
+        document.getElementById('in_tg_id').value = d.tgId || ""; 
+        render();
+    } else {
+        // Логика для абсолютно нового аккаунта
+        window.plans = [];
+        window.storage = [];
+        document.getElementById('in_tg_id').value = ""; // Очищаем поле для нового юзера
+        render();
+    }
+});
         } else {
             currentUid = null;
             document.getElementById('login-screen').style.display = 'flex';
