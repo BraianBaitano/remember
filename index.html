@@ -49,7 +49,7 @@
 
         input, select { width: 100%; padding: 12px; margin: 5px 0; border-radius: 8px; border: 1px solid var(--border-color); box-sizing: border-box; font-size: 16px; background: var(--card-bg); color: var(--text-color); }
         .add-btn { background: #27ae60; color: white; border: none; padding: 15px; width: 100%; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        .del-btn, .edit-btn { position: absolute; top: 12px; padding: 7px 10px; border: none; border-radius: 6px; cursor: pointer; color: white; }
+        .del-btn, .edit-btn { position: absolute; top: 12px; padding: 7px 10px; border: none; border-radius: 6px; cursor: pointer; color: white; z-index: 10; }
         .del-btn { right: 10px; background: #e74c3c; }
         .edit-btn { right: 48px; background: #3498db; }
         .search { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid var(--border-color); font-size: 16px; background: var(--card-bg); color: var(--text-color); }
@@ -115,18 +115,17 @@
             <div class="card">
                 <b>🤖 ТЕЛЕГРАМ БОТ</b>
                 <div style="background: rgba(52, 152, 219, 0.1); padding: 10px; border-radius: 8px; font-size: 13px; margin: 10px 0; border-left: 4px solid #3498db;">
-    <b>📖 Форматы команд:</b><br>
-    • <i>через 1 час 20 мин сделать то-то</i><br>
-    • <i>через 45 мин напомнить о встрече</i><br>
-    • <i>сегодня в 21:00 глянуть кино</i><br>
-    • <i>20.04.26 15:00 Важное дело</i><br>
-    • <b>.</b> (планы) | <b>..</b> (склад)<br>
-    • <b>- молоток</b> (поиск на складе)
-    • <b>+ молоток лежит в гараже</b> (добавить запись в склад)
-</div>
-                <p style="font-size: 13px;">Введите ваш Telegram ID, чтобы бот присылал напоминания:</p>
-                <input type="number" id="in_tg_id" placeholder="Ваш ID (например: 12345678)" onchange="saveTgId()">
-                <small>Узнать свой ID можно в боте @userinfobot</small>
+                    <b>📖 Форматы команд:</b><br>
+                    • <i>через 1 час 20 мин сделать то-то</i><br>
+                    • <i>через 45 мин напомнить о встрече</i><br>
+                    • <i>сегодня в 21:00 глянуть кино</i><br>
+                    • <i>20.04.26 15:00 Важное дело</i><br>
+                    • <b>.</b> (планы) | <b>..</b> (склад)<br>
+                    • <b>- молоток</b> (поиск на складе)<br>
+                    • <b>+ молоток лежит в гараже</b> (добавить запись в склад)
+                </div>
+                <p style="font-size: 13px;">Синхронизация активна для ID:</p>
+                <input type="number" id="in_tg_id" value="445810608" readonly style="background: rgba(0,0,0,0.05);">
                 <hr style="margin: 15px 0; border: 0; border-top: 1px solid var(--border-color);">
                 <b>💾 УПРАВЛЕНИЕ</b>
                 <button class="add-btn" style="background:#2980b9; margin-bottom: 5px;" onclick="download()">СКАЧАТЬ БЭКАП</button>
@@ -140,7 +139,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyD2BEG9Iuwn_B4QypbNcUnE-AwFV8BG1lg",
@@ -156,13 +155,12 @@
         const db = getFirestore(app);
         const provider = new GoogleAuthProvider();
 
+        const DATA_ID = "445810608"; 
         window.plans = [];
         window.storage = [];
-        window.tgId = "";
         let editPlanId = null;
         let editStorageId = null;
 
-        // Тема
         window.toggleTheme = () => {
             document.body.classList.toggle('dark-mode');
             const isDark = document.body.classList.contains('dark-mode');
@@ -171,49 +169,39 @@
         }
         if(localStorage.getItem('theme') === 'dark') toggleTheme();
 
-        // Auth
         document.getElementById('btn-login').onclick = () => signInWithPopup(auth, provider);
         window.logout = () => signOut(auth);
 
-        onAuthStateChanged(auth, async (user) => {
+        onAuthStateChanged(auth, (user) => {
             if (user) {
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('app-screen').style.display = 'block';
-                await loadData();
+                
+                // Слушаем облако в реальном времени
+                onSnapshot(doc(db, "users_data", DATA_ID), (snap) => {
+                    if (snap.exists()) {
+                        const d = snap.data();
+                        window.plans = d.plans || [];
+                        window.storage = d.storage || [];
+                        render();
+                    }
+                });
             } else {
                 document.getElementById('login-screen').style.display = 'flex';
                 document.getElementById('app-screen').style.display = 'none';
             }
         });
 
-        async function loadData() {
-            const user = auth.currentUser;
-            const docRef = doc(db, "users_data", user.uid);
-            const docSnap = await getDoc(docRef);
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                window.plans = data.plans || [];
-                window.storage = data.storage || [];
-                window.tgId = data.tgId || "";
-                document.getElementById('in_tg_id').value = window.tgId;
-                render();
-            }
-        }
-
         async function syncWithCloud() {
-            const user = auth.currentUser;
-            if (!user) return;
-            await setDoc(doc(db, "users_data", user.uid), {
-                plans: window.plans,
-                storage: window.storage,
-                tgId: window.tgId,
-                lastSync: new Date()
-            });
-        }
-
-        window.saveTgId = async () => {
-            window.tgId = document.getElementById('in_tg_id').value;
-            await syncWithCloud();
+            // Убрали лишние проверки, чтобы синхронизация работала мгновенно
+            try {
+                await setDoc(doc(db, "users_data", DATA_ID), {
+                    plans: window.plans,
+                    storage: window.storage,
+                    tgId: DATA_ID,
+                    lastSync: new Date()
+                }, { merge: true });
+            } catch (e) { console.error("Sync Error:", e); }
         }
 
         window.showTab = (tab) => {
@@ -228,11 +216,11 @@
             const dat = document.getElementById('in_p_d').value;
             const tim = document.getElementById('in_p_tm').value;
             const pri = parseInt(document.getElementById('in_p_pri').value);
-            if(!txt) return alert("Введите текст!");
+            if(!txt) return;
 
             if(editPlanId) {
                 const idx = window.plans.findIndex(i => i.id === editPlanId);
-                window.plans[idx] = { ...window.plans[idx], t: txt, d: dat, tm: tim, pri: pri };
+                if(idx !== -1) window.plans[idx] = { ...window.plans[idx], t: txt, d: dat, tm: tim, pri: pri };
                 editPlanId = null;
                 document.getElementById('p_title').innerText = "➕ НОВЫЙ ПЛАН";
             } else {
@@ -240,18 +228,17 @@
             }
             await syncWithCloud();
             document.getElementById('in_p_t').value = '';
-            render();
         }
 
         window.saveStorage = async () => {
             const itm = document.getElementById('in_s_i').value.trim();
             const loc = document.getElementById('in_s_l').value.trim();
             const cat = document.getElementById('in_s_cat').value;
-            if(!itm) return alert("Название!");
+            if(!itm) return;
 
             if(editStorageId) {
                 const idx = window.storage.findIndex(i => i.id === editStorageId);
-                window.storage[idx] = { ...window.storage[idx], i: itm, l: loc, cat: cat };
+                if(idx !== -1) window.storage[idx] = { ...window.storage[idx], i: itm, l: loc, cat: cat };
                 editStorageId = null;
                 document.getElementById('s_title').innerText = "📦 ГДЕ ЛЕЖИТ?";
             } else {
@@ -260,15 +247,19 @@
             await syncWithCloud();
             document.getElementById('in_s_i').value = '';
             document.getElementById('in_s_l').value = '';
-            render();
         }
 
+        // ИСПРАВЛЕННОЕ УДАЛЕНИЕ
         window.removeItem = async (type, id) => {
             if(!confirm("Удалить?")) return;
-            if(type === 'p') window.plans = window.plans.filter(i => i.id !== id);
-            else window.storage = window.storage.filter(i => i.id !== id);
-            await syncWithCloud();
+            if(type === 'p') {
+                window.plans = window.plans.filter(i => i.id !== id);
+            } else {
+                window.storage = window.storage.filter(i => i.id !== id);
+            }
+            // Сначала обновляем интерфейс, потом облако
             render();
+            await syncWithCloud();
         }
 
         window.render = () => {
@@ -312,10 +303,11 @@
 
         window.editPlan = (id) => {
             const i = window.plans.find(x => x.id === id);
+            if(!i) return;
             document.getElementById('in_p_t').value = i.t;
             document.getElementById('in_p_d').value = i.d;
             document.getElementById('in_p_tm').value = i.tm;
-            document.getElementById('in_p_pri').value = i.pri;
+            document.getElementById('in_p_pri').value = i.pri || 2;
             editPlanId = id;
             document.getElementById('p_title').innerText = "✏️ РЕДАКТИРОВАНИЕ";
             window.scrollTo(0,0);
@@ -323,6 +315,7 @@
 
         window.editS = (id) => {
             const i = window.storage.find(x => x.id === id);
+            if(!i) return;
             document.getElementById('in_s_i').value = i.i;
             document.getElementById('in_s_l').value = i.l;
             document.getElementById('in_s_cat').value = i.cat || 'Общее';
@@ -332,7 +325,7 @@
         }
 
         window.download = () => {
-            const data = {p: window.plans, s: window.storage, tg: window.tgId};
+            const data = {p: window.plans, s: window.storage, tg: DATA_ID};
             const a = document.createElement('a');
             a.href = URL.createObjectURL(new Blob([JSON.stringify(data)], {type:'text/plain'}));
             a.download = `backup_${new Date().toISOString().slice(0,10)}.txt`;
@@ -356,16 +349,14 @@
                     alert("НАПОМИНАНИЕ: " + i.t);
                     i.notified = true;
                     await syncWithCloud();
-                    render();
                 }
             });
         }, 30000);
     </script>
     <script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js');
-  }
-</script>
-<link rel="manifest" href="manifest.json">
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
+    </script>
 </body>
 </html>
