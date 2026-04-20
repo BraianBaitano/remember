@@ -316,29 +316,53 @@ import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/f
 
 
     window.render = () => {
-        const sP = document.getElementById('search_p').value.toLowerCase();
-        const sS = document.getElementById('search_s').value.toLowerCase();
-        const now = new Date();
-        const tomorrowStr = new Date(now.getTime() + 86400000).toISOString().split('T')[0];
+    const sP = document.getElementById('search_p').value.toLowerCase();
+    const sS = document.getElementById('search_s').value.toLowerCase();
+    
+    // --- ИСПРАВЛЕННЫЙ БЛОК ЛОГИКИ ДАТ ---
+    const now = new Date();
+    
+    // Сегодняшняя дата в формате ГГГГ-ММ-ДД (локальная)
+    const todayStr = now.toLocaleDateString('sv').split(' ')[0]; 
+    
+    // Завтрашняя дата (локальная)
+    const tomorrow = new Date();
+    tomorrow.setDate(now.getDate() + 1);
+    const tomorrowStr = tomorrow.toLocaleDateString('sv').split(' ')[0];
+    // -------------------------------------
 
-        let h_p = '';
-        const sortedP = [...window.plans].sort((a,b) => (a.d + a.tm).localeCompare(b.d + b.tm));
-        sortedP.forEach(item => {
-            if (sP && !escapeHTML(item.t).toLowerCase().includes(sP)) return; // <-- Здесь тоже нужно экранировать для поиска
-            let extraCls = '', tom = '';
-            if (item.d) {
-                const ev = new Date(item.d + 'T' + (item.tm || '00:00'));
-                if (item.d === tomorrowStr) tom = '<span style="color:red; font-weight:bold;">ЗАВТРА! </span>';
-                if (ev - now < 0) extraCls = 'bg-past';
-                else if ((ev - now) / 3600000 <= 24) extraCls = 'bg-urgent';
+    let h_p = '';
+    const sortedP = [...window.plans].sort((a,b) => (a.d + a.tm).localeCompare(b.d + b.tm));
+    
+    sortedP.forEach(item => {
+        if (sP && !escapeHTML(item.t).toLowerCase().includes(sP)) return;
+        
+        let extraCls = '', statusLabel = ''; // Поменяли переменную tom на statusLabel
+        
+        if (item.d) {
+            const ev = new Date(item.d + 'T' + (item.tm || '00:00'));
+            
+            // Проверка на "СЕГОДНЯ"
+            if (item.d === todayStr) {
+                statusLabel = '<span style="color:#e67e22; font-weight:bold;">СЕГОДНЯ! </span>';
+            } 
+            // Проверка на "ЗАВТРА"
+            else if (item.d === tomorrowStr) {
+                statusLabel = '<span style="color:red; font-weight:bold;">ЗАВТРА! </span>';
             }
-            const pCls = item.pri === 3 ? 'card-high' : item.pri === 2 ? 'card-med' : 'card-low';
-            h_p += `<div class="card ${pCls} ${extraCls}">
-                <button class="edit-btn" onclick="editPlan('${escapeHTML(String(item.id))}')">✏️</button>
-                <button class="del-btn" onclick="removeItem('p', '${escapeHTML(String(item.id))}')">X</button>
-                ${tom}<b>${escapeHTML(item.t)}</b><br><small>📅 ${escapeHTML(item.d || '--')} ⏰ ${escapeHTML(item.tm || '--:--')}</small>
-            </div>`;
-        });
+
+            if (ev - now < 0) extraCls = 'bg-past';
+            else if ((ev - now) / 3600000 <= 24) extraCls = 'bg-urgent';
+        }
+
+        const pCls = item.pri === 3 ? 'card-high' : item.pri === 2 ? 'card-med' : 'card-low';
+        h_p += `<div class="card ${pCls} ${extraCls}">
+            <button class="edit-btn" onclick="editPlan('${escapeHTML(String(item.id))}')">✏️</button>
+            <button class="del-btn" onclick="removeItem('p', '${escapeHTML(String(item.id))}')">X</button>
+            ${statusLabel}<b>${escapeHTML(item.t)}</b><br><small>📅 ${escapeHTML(item.d || '--')} ⏰ ${escapeHTML(item.tm || '--:--')}</small>
+        </div>`;
+    });
+    
         document.getElementById('list_p').innerHTML = h_p || '<p>Список пуст</p>';
            
 
