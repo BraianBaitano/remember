@@ -125,7 +125,12 @@
                     • <b>+ молоток лежит в гараже</b> (добавить запись в склад)
                 </div>
                 <p style="font-size: 13px;">Синхронизация активна для ID:</p>
-                <input type="number" id="in_tg_id" placeholder="Введите ваш Telegram ID" style="background: rgba(0,0,0,0.05);">
+                <p style="font-size: 13px;">Синхронизация активна для ID:</p>
+<div style="display: flex; gap: 5px;">
+    <input type="number" id="in_tg_id" placeholder="Ваш Telegram ID" style="background: rgba(0,0,0,0.05); flex: 1;">
+    <button onclick="saveTgId()" style="padding: 10px; background: #27ae60; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">ОК</button>
+</div>
+<small style="display:block; margin-top:5px; color: #7f8c8d;">Узнать свой ID можно у бота @userinfobot</small>
                 <hr style="margin: 15px 0; border: 0; border-top: 1px solid var(--border-color);">
                 <b>💾 УПРАВЛЕНИЕ</b>
                 <button class="add-btn" style="background:#2980b9; margin-bottom: 5px;" onclick="download()">СКАЧАТЬ БЭКАП</button>
@@ -279,6 +284,26 @@
         render();
         await syncWithCloud();
     }
+        window.saveTgId = async () => {
+    const tgIdValue = document.getElementById('in_tg_id').value.trim();
+    if (!tgIdValue) {
+        alert("Введите ваш Telegram ID");
+        return;
+    }
+
+    try {
+        // Мы используем setDoc с { merge: true }, чтобы не затереть склад и планы
+        await setDoc(doc(db, "users_data", currentUid), {
+            tgId: tgIdValue,
+            lastSync: new Date()
+        }, { merge: true });
+        
+        alert("Telegram ID успешно привязан!");
+    } catch (e) {
+        console.error("Ошибка сохранения TG ID:", e);
+        alert("Ошибка при сохранении");
+    }
+};
 
     window.render = () => {
         const sP = document.getElementById('search_p').value.toLowerCase();
