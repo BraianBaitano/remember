@@ -18,6 +18,10 @@
             --text-color: #2c3e50;
             --accent-color: #3498db;
             --border-color: #ccc;
+            /* Цвета статусов */
+            --color-today: #e74c3c;
+            --color-tomorrow: #f39c12;
+            --color-after: #27ae60;
         }
 
         body.dark-mode {
@@ -40,30 +44,30 @@
         .tabs button { flex: 1; padding: 12px; cursor: pointer; border: none; background: #7f8c8d; color: white; border-radius: 10px; font-weight: bold; font-size: 13px; }
         .tabs button.active { background: #2c3e50; }
 
-        /* ИСПРАВЛЕННЫЕ СТИЛИ ФИЛЬТРОВ */
+        /* ИСПРАВЛЕННЫЕ ЦВЕТА ФИЛЬТРОВ */
+        .icon-today { color: var(--color-today); font-weight: bold; }
+        .icon-tomorrow { color: var(--color-tomorrow); font-weight: bold; }
+        .icon-after { color: var(--color-after); font-weight: bold; }
+        .icon-all { color: var(--accent-color); }
+
         .filter-panel { background: var(--card-bg); padding: 12px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--accent-color); display: none; }
-        .filter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+        .filter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
         
         .filter-item { 
             display: flex; 
             align-items: center; 
             gap: 10px; 
             font-size: 14px; 
-            cursor: pointer; 
-            padding: 8px; 
-            background: rgba(0,0,0,0.03); 
-            border-radius: 8px;
-            transition: 0.2s;
+            cursor: pointer;
+            white-space: nowrap;
         }
-        body.dark-mode .filter-item { background: rgba(255,255,255,0.05); }
-        .filter-item input { margin: 0; width: 18px; height: 18px; flex-shrink: 0; }
-        .filter-item span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-        /* Цвета для планов в фильтрах */
-        .f-today { color: #e74c3c; font-weight: bold; }
-        .f-tomorrow { color: #f39c12; font-weight: bold; }
-        .f-after { color: #27ae60; font-weight: bold; }
-        .f-all { color: var(--accent-color); font-weight: bold; }
+        .filter-item input { 
+            width: 18px; 
+            height: 18px; 
+            margin: 0; 
+            cursor: pointer; 
+            flex-shrink: 0; 
+        }
 
         .filter-btn-toggle { background: var(--accent-color); color: white; border: none; padding: 8px 15px; border-radius: 8px; margin-bottom: 10px; width: 100%; cursor: pointer; font-weight: bold; }
 
@@ -84,10 +88,11 @@
         .search { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid var(--border-color); font-size: 16px; background: var(--card-bg); color: var(--text-color); }
 
         @keyframes pulse-red { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
-        .status-today { color: #e74c3c; font-weight: bold; animation: pulse-red 2s infinite; }
-        .status-tomorrow { color: #f39c12; font-weight: bold; }
-        .status-after-tomorrow { color: #27ae60; font-weight: bold; }
-        .status-soon { color: #9b59b6; font-weight: bold; }
+        /* ИСПРАВЛЕННЫЕ ЦВЕТА СТАТУСОВ В КАРТОЧКАХ */
+        .status-today { color: var(--color-today); font-weight: bold; animation: pulse-red 2s infinite; }
+        .status-tomorrow { color: var(--color-tomorrow); font-weight: bold; }
+        .status-after-tomorrow { color: var(--color-after); font-weight: bold; }
+
         .card-archived { filter: grayscale(1); opacity: 0.6; border-left-color: #7f8c8d !important; background: rgba(0,0,0,0.05) !important; }
         
         .network-status { font-size: 12px; display: flex; align-items: center; gap: 5px; }
@@ -140,10 +145,22 @@
             <div id="filter-p" class="filter-panel">
                 <b>Показать только:</b>
                 <div class="filter-grid">
-                    <label class="filter-item f-today"><input type="checkbox" value="today" onchange="render()"> <span>Сегодня</span></label>
-                    <label class="filter-item f-tomorrow"><input type="checkbox" value="tomorrow" onchange="render()"> <span>Завтра</span></label>
-                    <label class="filter-item f-after"><input type="checkbox" value="after" onchange="render()"> <span>Послезавтра</span></label>
-                    <label class="filter-item f-all"><input type="checkbox" value="all" onchange="render()"> <span>Всё</span></label>
+                    <label class="filter-item">
+                        <input type="checkbox" value="today" onchange="render()"> 
+                        <span class="icon-today">📅 Сегодня</span>
+                    </label>
+                    <label class="filter-item">
+                        <input type="checkbox" value="tomorrow" onchange="render()"> 
+                        <span class="icon-tomorrow">🔜 Завтра</span>
+                    </label>
+                    <label class="filter-item">
+                        <input type="checkbox" value="after" onchange="render()"> 
+                        <span class="icon-after">🗓️ Послезавтра</span>
+                    </label>
+                    <label class="filter-item">
+                        <input type="checkbox" value="all" onchange="render()"> 
+                        <span class="icon-all">👁️ Показать всё</span>
+                    </label>
                 </div>
             </div>
 
@@ -237,9 +254,8 @@
 
         const catIcons = { "Общее": "📦", "Гараж": "🚗", "Квартира": "🔑", "Дача": "🌿", "Дом": "🏠", "Погреб": "🏺", "Одолжил": "🤝", "Из бота": "🤖" };
 
-        // ИСПРАВЛЕННЫЙ ЦИКЛ ГЕНЕРАЦИИ ФИЛЬТРОВ СКЛАДА
         const filterSList = document.getElementById('filter-storage-list');
-        filterSList.innerHTML = ""; 
+        filterSList.innerHTML = ''; 
         Object.keys(catIcons).forEach(cat => {
             filterSList.innerHTML += `
                 <label class="filter-item">
@@ -311,13 +327,19 @@
 
             if(editPlanId) {
                 const idx = window.plans.findIndex(i => String(i.id) === String(editPlanId));
-                if(idx !== -1) window.plans[idx] = { ...window.plans[idx], t: txt, d: dat, tm: tim, pri: pri };
+                if(idx !== -1) {
+                    const old = window.plans[idx];
+                    const isNewTime = old.d !== dat || old.tm !== tim;
+                    window.plans[idx] = { ...old, t: txt, d: dat, tm: tim, pri: pri, notified: isNewTime ? false : old.notified };
+                }
                 cancelEdit('p');
             } else {
                 window.plans.push({ id: Date.now(), t: txt, d: dat, tm: tim, pri: pri, notified: false });
             }
             render(); await syncWithCloud();
             document.getElementById('in_p_t').value = '';
+            document.getElementById('in_p_d').value = '';
+            document.getElementById('in_p_tm').value = '';
         };
 
         window.saveStorage = async () => {
@@ -351,11 +373,9 @@
             const selPlanChecks = Array.from(document.querySelectorAll('#filter-p input:checked')).map(c => c.value);
             const selStoreChecks = Array.from(document.querySelectorAll('#filter-s input:checked')).map(c => c.value);
 
-            // РЕНДЕР ПЛАНОВ
             let activePlans = [], archivedPlans = [];
             window.plans.forEach(item => {
                 if (sP && !escapeHTML(item.t).toLowerCase().includes(sP)) return;
-                
                 if (selPlanChecks.length > 0 && !selPlanChecks.includes('all')) {
                     let match = false;
                     if (selPlanChecks.includes('today') && item.d === todayStr) match = true;
@@ -368,6 +388,7 @@
                 const evDate = new Date(item.d + 'T' + (item.tm || '00:00'));
                 if (item.d && evDate - now < -86400000) archived = true;
 
+                /* ИСПРАВЛЕННАЯ ЛОГИКА ЦВЕТОВ В КАРТОЧКАХ */
                 if (item.d === todayStr) statusLabel = '<span class="status-today">СЕГОДНЯ! </span>';
                 else if (item.d === tomorrowStr) statusLabel = '<span class="status-tomorrow">ЗАВТРА </span>';
                 else if (item.d === afterTomorrowStr) statusLabel = '<span class="status-after-tomorrow">ПОСЛЕЗАВТРА </span>';
@@ -386,7 +407,6 @@
             activePlans.sort((a, b) => a.sortKey.localeCompare(b.sortKey));
             document.getElementById('list_p').innerHTML = (activePlans.map(x => x.html).join('') + archivedPlans.map(x => x.html).join('')) || '<p>Пусто</p>';
 
-            // РЕНДЕР СКЛАДА
             let h_s = '';
             const sortedStore = [...window.storage].sort((a,b) => (a.i || "").localeCompare(b.i || ""));
             sortedStore.forEach(item => {
@@ -407,34 +427,45 @@
             const i = window.plans.find(x => String(x.id) === String(id));
             if(!i) return;
             document.getElementById('in_p_t').value = i.t;
-            document.getElementById('in_p_d').value = i.d;
-            document.getElementById('in_p_tm').value = i.tm;
-            document.getElementById('in_p_pri').value = i.pri || 2;
+            document.getElementById('in_p_d').value = i.d || "";
+            document.getElementById('in_p_tm').value = i.tm || "";
+            document.getElementById('in_p_pri').value = i.pri || "2";
+
             editPlanId = String(id);
             document.getElementById('p_title').innerText = "✏️ РЕДАКТИРОВАНИЕ";
             document.getElementById('p_cancel').style.display = 'block';
             window.scrollTo(0,0);
+            document.getElementById('in_p_t').focus();
         };
 
         window.editS = (id) => {
             const i = window.storage.find(x => String(x.id) === String(id));
             if(!i) return;
             document.getElementById('in_s_i').value = i.i;
-            document.getElementById('in_s_l').value = i.l;
-            document.getElementById('in_s_cat').value = i.cat || 'Общее';
+            document.getElementById('in_s_l').value = i.l || "";
+            document.getElementById('in_s_cat').value = i.cat || "Общее";
+
             editStorageId = String(id);
             document.getElementById('s_title').innerText = "✏️ РЕДАКТИРОВАНИЕ";
             document.getElementById('s_cancel').style.display = 'block';
             window.scrollTo(0,0);
+            document.getElementById('in_s_i').focus();
         };
 
         window.cancelEdit = (type) => {
             if(type === 'p') {
-                editPlanId = null; document.getElementById('p_title').innerText = "➕ НОВЫЙ ПЛАН";
+                editPlanId = null; 
+                document.getElementById('p_title').innerText = "➕ НОВЫЙ ПЛАН";
                 document.getElementById('p_cancel').style.display = 'none';
+                document.getElementById('in_p_t').value = '';
+                document.getElementById('in_p_d').value = '';
+                document.getElementById('in_p_tm').value = '';
             } else {
-                editStorageId = null; document.getElementById('s_title').innerText = "📦 ГДЕ ЛЕЖИТ?";
+                editStorageId = null; 
+                document.getElementById('s_title').innerText = "📦 ГДЕ ЛЕЖИТ?";
                 document.getElementById('s_cancel').style.display = 'none';
+                document.getElementById('in_s_i').value = '';
+                document.getElementById('in_s_l').value = '';
             }
         };
 
@@ -476,13 +507,14 @@
 
         setInterval(() => {
             const now = new Date();
-            const d = now.toISOString().split('T')[0];
+            const d = now.toLocaleDateString('sv');
             const t = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
             window.plans.forEach(async (i) => {
                 if(i.d === d && i.tm === t && !i.notified) {
                     document.getElementById('alarmSound').play();
                     alert("НАПОМИНАНИЕ: " + i.t);
-                    i.notified = true; await syncWithCloud();
+                    i.notified = true; 
+                    await syncWithCloud();
                 }
             });
         }, 30000);
