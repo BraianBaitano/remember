@@ -53,6 +53,24 @@
         .del-btn { right: 10px; background: #e74c3c; }
         .edit-btn { right: 48px; background: #3498db; }
         .search { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid var(--border-color); font-size: 16px; background: var(--card-bg); color: var(--text-color); }
+        /* Анимация для "Сегодня" */
+@keyframes pulse-red {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+.status-today { color: #e74c3c; font-weight: bold; animation: pulse-red 2s infinite; }
+.status-tomorrow { color: #f39c12; font-weight: bold; }
+.status-after-tomorrow { color: #27ae60; font-weight: bold; }
+.status-soon { color: #9b59b6; font-weight: bold; }
+
+/* Прошедшие задачи (серые) */
+.card-archived { 
+    filter: grayscale(1); 
+    opacity: 0.6; 
+    border-left-color: #7f8c8d !important; 
+    background: rgba(0,0,0,0.05) !important; 
+}
     </style>
 </head>
 <body>
@@ -141,24 +159,30 @@
     <audio id="alarmSound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
 
     <script type="module">
-        function escapeHTML(str) {
-    const div = document.createElement('div');
-    div.appendChild(document.createTextNode(str));
-    return div.innerHTML;
-}
+        // 1. Сначала функция очистки текста
+        window.escapeHTML = (str) => {
+            if (!str) return "";
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        };
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        // 2. Затем импорты
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyD2BEG9Iuwn_B4QypbNcUnE-AwFV8BG1lg",
-        authDomain: "baitan-ver1.firebaseapp.com",
-        projectId: "baitan-ver1",
-        storageBucket: "baitan-ver1.firebasestorage.app",
-        messagingSenderId: "847775039275",
-        appId: "1:847775039275:web:4d15455caa9a6efcf5cf6e"
-    };
+        // 3. Конфигурация и остальной код...
+        const firebaseConfig = {
+            apiKey: "AIzaSyD2BEG9Iuwn_B4QypbNcUnE-AwFV8BG1lg",
+            authDomain: "baitan-ver1.firebaseapp.com",
+            projectId: "baitan-ver1",
+            storageBucket: "baitan-ver1.firebasestorage.app",
+            messagingSenderId: "847775039275",
+            appId: "1:847775039275:web:4d15455caa9a6efcf5cf6e"
+        };
+        
+        // ... далее весь твой JavaScript код без изменений ...
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
@@ -319,68 +343,84 @@ import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/f
     const sP = document.getElementById('search_p').value.toLowerCase();
     const sS = document.getElementById('search_s').value.toLowerCase();
     
-    // --- ИСПРАВЛЕННЫЙ БЛОК ЛОГИКИ ДАТ ---
     const now = new Date();
+    // Даты в формате ГГГГ-ММ-ДД для сравнения
+    const todayStr = now.toLocaleDateString('sv');
     
-    // Сегодняшняя дата в формате ГГГГ-ММ-ДД (локальная)
-    const todayStr = now.toLocaleDateString('sv').split(' ')[0]; 
+    const tom = new Date(); tom.setDate(now.getDate() + 1);
+    const tomorrowStr = tom.toLocaleDateString('sv');
     
-    // Завтрашняя дата (локальная)
-    const tomorrow = new Date();
-    tomorrow.setDate(now.getDate() + 1);
-    const tomorrowStr = tomorrow.toLocaleDateString('sv').split(' ')[0];
-    // -------------------------------------
+    const aft = new Date(); aft.setDate(now.getDate() + 2);
+    const afterTomorrowStr = aft.toLocaleDateString('sv');
 
-    let h_p = '';
-    const sortedP = [...window.plans].sort((a,b) => (a.d + a.tm).localeCompare(b.d + b.tm));
-    
-    sortedP.forEach(item => {
+    const soonLimit = new Date(); soonLimit.setDate(now.getDate() + 7);
+
+    let activePlans = [], archivedPlans = [];
+
+    // --- ОБРАБОТКА ПЛАНОВ ---
+    window.plans.forEach(item => {
         if (sP && !escapeHTML(item.t).toLowerCase().includes(sP)) return;
         
-        let extraCls = '', statusLabel = ''; // Поменяли переменную tom на statusLabel
+        let statusLabel = '', archived = false;
         
         if (item.d) {
-            const ev = new Date(item.d + 'T' + (item.tm || '00:00'));
-            
-            // Проверка на "СЕГОДНЯ"
-            if (item.d === todayStr) {
-                statusLabel = '<span style="color:#e67e22; font-weight:bold;">СЕГОДНЯ! </span>';
-            } 
-            // Проверка на "ЗАВТРА"
-            else if (item.d === tomorrowStr) {
-                statusLabel = '<span style="color:red; font-weight:bold;">ЗАВТРА! </span>';
-            }
+            const evDate = new Date(item.d + 'T' + (item.tm || '00:00'));
+            const diffMs = evDate - now;
 
-            if (ev - now < 0) extraCls = 'bg-past';
-            else if ((ev - now) / 3600000 <= 24) extraCls = 'bg-urgent';
+            // Если прошло более 24 часов (86400000 мс)
+            if (diffMs < -86400000) {
+                archived = true;
+            }
+            
+            // Определяем метку времени
+            if (item.d === todayStr) {
+                statusLabel = '<span class="status-today">СЕГОДНЯ! </span>';
+            } else if (item.d === tomorrowStr) {
+                statusLabel = '<span class="status-tomorrow">ЗАВТРА </span>';
+            } else if (item.d === afterTomorrowStr) {
+                statusLabel = '<span class="status-after-tomorrow">ПОСЛЕЗАВТРА </span>';
+            } else if (evDate > now && evDate <= soonLimit) {
+                statusLabel = '<span class="status-soon">СКОРО </span>';
+            }
         }
 
         const pCls = item.pri === 3 ? 'card-high' : item.pri === 2 ? 'card-med' : 'card-low';
-        h_p += `<div class="card ${pCls} ${extraCls}">
-    <button class="edit-btn" onclick="editPlan('${escapeHTML(String(item.id))}')">✏️</button>
-    <button class="del-btn" onclick="removeItem('p', '${escapeHTML(String(item.id))}')">X</button>
-    
-    <div>${statusLabel}<b style="display: inline-block; vertical-align: top;">${escapeHTML(item.t)}</b></div>
-    <small style="display: block; margin-top: 5px;">📅 ${escapeHTML(item.d || '--')} ⏰ ${escapeHTML(item.tm || '--:--')}</small>
-</div>`;
-    });
-    
-        document.getElementById('list_p').innerHTML = h_p || '<p>Список пуст</p>';
-           
-
-        let h_s = '';
-        window.storage.forEach(item => {
-            // Экранируем данные для поиска
-            if (sS && !(escapeHTML(item.i) + escapeHTML(item.l)).toLowerCase().includes(sS)) return;
-            h_s += `<div class="card">
-                <button class="edit-btn" onclick="editS('${escapeHTML(String(item.id))}')">✏️</button>
-                <button class="del-btn" onclick="removeItem('s', '${escapeHTML(String(item.id))}')">X</button>
-                <span class="category-badge">${escapeHTML(item.cat || 'Общее')}</span><b>${escapeHTML(item.i)}</b><br>
-                <small>📍 ${escapeHTML(item.l || '—')}</small>
+        
+        const html = `
+            <div class="card ${pCls} ${archived ? 'card-archived' : ''}">
+                <button class="edit-btn" onclick="editPlan('${escapeHTML(String(item.id))}')">✏️</button>
+                <button class="del-btn" onclick="removeItem('p', '${escapeHTML(String(item.id))}')">X</button>
+                <div>${statusLabel}<b style="display: inline-block; vertical-align: top;">${escapeHTML(item.t)}</b></div>
+                <small style="display: block; margin-top: 5px;">📅 ${escapeHTML(item.d || '--')} ⏰ ${escapeHTML(item.tm || '--:--')}</small>
             </div>`;
-        });
-        document.getElementById('list_s').innerHTML = h_s || '<p>Склад пуст</p>';
-    }
+
+        if (archived) {
+            archivedPlans.push({ html, sortKey: (item.d + item.tm) });
+        } else {
+            activePlans.push({ html, sortKey: (item.d + item.tm) });
+        }
+    });
+
+    // Сортируем: активные по возрастанию, архивные вниз
+    activePlans.sort((a, b) => a.sortKey.localeCompare(b.sortKey));
+    archivedPlans.sort((a, b) => b.sortKey.localeCompare(a.sortKey));
+
+    const finalPlansHTML = activePlans.map(x => x.html).join('') + archivedPlans.map(x => x.html).join('');
+    document.getElementById('list_p').innerHTML = finalPlansHTML || '<p>Список пуст</p>';
+
+    // --- ОБРАБОТКА СКЛАДА (без изменений) ---
+    let h_s = '';
+    window.storage.forEach(item => {
+        if (sS && !(escapeHTML(item.i) + escapeHTML(item.l)).toLowerCase().includes(sS)) return;
+        h_s += `<div class="card">
+            <button class="edit-btn" onclick="editS('${escapeHTML(String(item.id))}')">✏️</button>
+            <button class="del-btn" onclick="removeItem('s', '${escapeHTML(String(item.id))}')">X</button>
+            <span class="category-badge">${escapeHTML(item.cat || 'Общее')}</span><b>${escapeHTML(item.i)}</b><br>
+            <small>📍 ${escapeHTML(item.l || '—')}</small>
+        </div>`;
+    });
+    document.getElementById('list_s').innerHTML = h_s || '<p>Склад пуст</p>';
+}
 
     window.editPlan = (id) => {
         const i = window.plans.find(x => String(x.id) === String(id));
