@@ -2,10 +2,10 @@
 <html lang="ru">
 <head>
     <title>VIP Склад 2 — Твое личное хранилище</title>
-<meta name="description" content="Умный VIP Склад: напоминалка, хранилище вещей и инвентарь. Больше не забудь, где что лежит в гараже, чулане или погребе.">
-<meta name="keywords" content="хранилище, вещи, напоминалка, где что лежит, гараж, не забудь, вип склад 2, чулан, погреб, склад байтана, склад baitan, baitan0501, baitan_05_01, личный склад">
-<meta name="author" content="Байтан">
-<meta name="robots" content="index, follow">
+    <meta name="description" content="Умный VIP Склад: напоминалка, хранилище вещей и инвентарь. Больше не забудь, где что лежит в гараже, чулане или погребе.">
+    <meta name="keywords" content="хранилище, вещи, напоминалка, где что лежит, гараж, не забудь, вип склад 2, чулан, погреб, склад байтана, склад baitan, baitan0501, baitan_05_01, личный склад">
+    <meta name="author" content="Байтан">
+    <meta name="robots" content="index, follow">
     <meta name="google-site-verification" content="8D-L9dulbI1OI0vtY9XPq8_fK1IhKVHVJHRqXozscPs" />
     <link rel="apple-touch-icon" href="icon.png">
     <link rel="manifest" href="manifest.json">
@@ -27,12 +27,12 @@
         }
 
         body { font-family: sans-serif; background: var(--bg-color); color: var(--text-color); padding: 10px; max-width: 500px; margin: auto; transition: 0.3s; }
-        
+                
         #login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 90vh; text-align: center; }
         .google-btn { background: #4285F4; color: white; border: none; padding: 15px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
 
         .header-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .theme-toggle { background: none; border: 1px solid var(--border-color); color: var(--text-color); padding: 5px 10px; border-radius: 20px; cursor: pointer; font-size: 14px; }
+        .theme-toggle { background: none; border: 1px solid var(--border-color); color: var(--text-color); padding: 5px 15px; border-radius: 20px; cursor: pointer; font-size: 14px; }
 
         .tabs { display: flex; margin-bottom: 15px; gap: 5px; }
         .tabs button { flex: 1; padding: 12px; cursor: pointer; border: none; background: #7f8c8d; color: white; border-radius: 10px; font-weight: bold; font-size: 13px; }
@@ -42,9 +42,7 @@
         .card-high { border-left-color: #e74c3c; }
         .card-med  { border-left-color: #f39c12; }
         .card-low  { border-left-color: #27ae60; }
-        .bg-urgent { background: rgba(155, 89, 182, 0.15) !important; border-left-color: #9b59b6 !important; }
-        .bg-past { background: rgba(46, 204, 113, 0.15) !important; border-left-color: #2ecc71 !important; }
-
+        
         .category-badge { background: #34495e; color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px; margin-right: 5px; vertical-align: middle; }
 
         input, select { width: 100%; padding: 12px; margin: 5px 0; border-radius: 8px; border: 1px solid var(--border-color); box-sizing: border-box; font-size: 16px; background: var(--card-bg); color: var(--text-color); }
@@ -53,24 +51,19 @@
         .del-btn { right: 10px; background: #e74c3c; }
         .edit-btn { right: 48px; background: #3498db; }
         .search { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid var(--border-color); font-size: 16px; background: var(--card-bg); color: var(--text-color); }
-        /* Анимация для "Сегодня" */
-@keyframes pulse-red {
-    0% { opacity: 1; }
-    50% { opacity: 0.5; }
-    100% { opacity: 1; }
-}
-.status-today { color: #e74c3c; font-weight: bold; animation: pulse-red 2s infinite; }
-.status-tomorrow { color: #f39c12; font-weight: bold; }
-.status-after-tomorrow { color: #27ae60; font-weight: bold; }
-.status-soon { color: #9b59b6; font-weight: bold; }
 
-/* Прошедшие задачи (серые) */
-.card-archived { 
-    filter: grayscale(1); 
-    opacity: 0.6; 
-    border-left-color: #7f8c8d !important; 
-    background: rgba(0,0,0,0.05) !important; 
-}
+        @keyframes pulse-red { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        .status-today { color: #e74c3c; font-weight: bold; animation: pulse-red 2s infinite; }
+        .status-tomorrow { color: #f39c12; font-weight: bold; }
+        .status-after-tomorrow { color: #27ae60; font-weight: bold; }
+        .status-soon { color: #9b59b6; font-weight: bold; }
+
+        .card-archived { filter: grayscale(1); opacity: 0.6; border-left-color: #7f8c8d !important; background: rgba(0,0,0,0.05) !important; }
+
+        .network-status { font-size: 12px; display: flex; align-items: center; gap: 5px; }
+        .dot { height: 8px; width: 8px; border-radius: 50%; display: inline-block; }
+        .online { background-color: #27ae60; box-shadow: 0 0 5px #27ae60; }
+        .offline { background-color: #e74c3c; }
     </style>
 </head>
 <body>
@@ -82,6 +75,10 @@
 
     <div id="app-screen" style="display:none">
         <div class="header-controls">
+            <div class="network-status">
+                <span id="net-dot" class="dot online"></span>
+                <span id="net-text">В сети</span>
+            </div>
             <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">🌙 Темная тема</button>
             <button onclick="logout()" style="background:none; border:none; color: #e74c3c; cursor:pointer; font-size: 14px;">Выйти</button>
         </div>
@@ -117,11 +114,14 @@
                 <input type="text" id="in_s_i" placeholder="Название вещи">
                 <input type="text" id="in_s_l" placeholder="Место">
                 <select id="in_s_cat">
-                    <option value="Общее">📁 Общее</option>
-                    <option value="Инструменты">🛠 Инструменты</option>
-                    <option value="Запчасти">⚙️ Запчасти</option>
-                    <option value="Электроника">🔌 Электроника</option>
+                    <option value="Общее">📦 Общее</option>
+                    <option value="Гараж">🚗 Гараж</option>
+                    <option value="Квартира">🔑 Квартира</option>
+                    <option value="Дача">🌿 Дача</option>
                     <option value="Дом">🏠 Дом</option>
+                    <option value="Погреб">🏺 Погреб</option>
+                    <option value="Одолжил">🤝 Одолжил</option>
+                    <option value="Из бота">🤖 Из бота</option>
                 </select>
                 <button class="add-btn" id="s_btn" onclick="saveStorage()">ЗАПИСАТЬ В ОБЛАКО</button>
             </div>
@@ -134,7 +134,7 @@
                 <b>🤖 ТЕЛЕГРАМ БОТ</b>
                 <div style="background: rgba(52, 152, 219, 0.1); padding: 10px; border-radius: 8px; font-size: 13px; margin: 10px 0; border-left: 4px solid #3498db;">
                     <b>📖 Форматы команд:</b><br>
-                    • <i>через 71 мин сделать то-то (если нужно исполнить через 1 час 11 минут)</i><br>
+                    • <i>через 71 мин сделать то-то</i><br>
                     • <i>через 45 мин напомнить о встрече</i><br>
                     • <i>через 3ч глянуть кино</i><br>
                     • <i>20.04.26 15:00 Важное дело</i><br>
@@ -143,11 +143,11 @@
                     • <b>+ молоток лежит в гараже</b> (добавить запись в склад)
                 </div>
                 <p style="font-size: 13px;">Синхронизация активна для ID:</p>
-<div style="display: flex; gap: 5px;">
-    <input type="number" id="in_tg_id" placeholder="Ваш Telegram ID" style="background: rgba(0,0,0,0.05); flex: 1;">
-    <button onclick="saveTgId()" style="padding: 10px; background: #27ae60; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">ОК</button>
-</div>
-<small style="display:block; margin-top:5px; color: #7f8c8d;">Узнать свой ID можно у бота @userinfobot , бот помошник - @VipSklad2_bot </small>
+                <div style="display: flex; gap: 5px;">
+                    <input type="number" id="in_tg_id" placeholder="Ваш Telegram ID" style="background: rgba(0,0,0,0.05); flex: 1;">
+                    <button onclick="saveTgId()" style="padding: 10px; background: #27ae60; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">ОК</button>
+                </div>
+                <small style="display:block; margin-top:5px; color: #7f8c8d;">Узнать свой ID можно у бота @userinfobot , бот помощник - @VipSklad2_bot </small>
                 <hr style="margin: 15px 0; border: 0; border-top: 1px solid var(--border-color);">
                 <b>💾 УПРАВЛЕНИЕ</b>
                 <button class="add-btn" style="background:#2980b9; margin-bottom: 5px;" onclick="download()">СКАЧАТЬ БЭКАП</button>
@@ -159,7 +159,11 @@
     <audio id="alarmSound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
 
     <script type="module">
-        // 1. Сначала функция очистки текста
+        const catIcons = {
+            "Общее": "📦", "Гараж": "🚗", "Квартира": "🔑", "Дача": "🌿",
+            "Дом": "🏠", "Погреб": "🏺", "Одолжил": "🤝", "Из бота": "🤖"
+        };
+
         window.escapeHTML = (str) => {
             if (!str) return "";
             const div = document.createElement('div');
@@ -167,12 +171,10 @@
             return div.innerHTML;
         };
 
-        // 2. Затем импорты
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // 3. Конфигурация и остальной код...
         const firebaseConfig = {
             apiKey: "AIzaSyD2BEG9Iuwn_B4QypbNcUnE-AwFV8BG1lg",
             authDomain: "baitan-ver1.firebaseapp.com",
@@ -182,295 +184,262 @@
             appId: "1:847775039275:web:4d15455caa9a6efcf5cf6e"
         };
         
-        // ... далее весь твой JavaScript код без изменений ...
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const provider = new GoogleAuthProvider();
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    const provider = new GoogleAuthProvider();
-
-    // ПЕРЕМЕННЫЕ
-    let currentUid = null; 
-    window.plans = [];
-    window.storage = [];
-    let editPlanId = null;
-    let editStorageId = null;
-
-    // ТЕМА
-    window.toggleTheme = () => {
-        document.body.classList.toggle('dark-mode');
-        const isDark = document.body.classList.contains('dark-mode');
-        localStorage.setItem('theme', isDark ? 'dark' : 'light');
-        document.getElementById('theme-btn').innerText = isDark ? "☀️ Светлая тема" : "🌙 Темная тема";
-    }
-    if(localStorage.getItem('theme') === 'dark') toggleTheme();
-
-    // ЛОГИН / ЛОГАУТ
-    document.getElementById('btn-login').onclick = () => signInWithPopup(auth, provider);
-    window.logout = () => signOut(auth);
-
-    // ГЛАВНЫЙ СЛУШАТЕЛЬ АВТОРИЗАЦИИ
-    onAuthStateChanged(auth, (user) => {
-        if (user) {
-            currentUid = user.uid; // Получаем UID залогинившегося юзера
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('app-screen').style.display = 'block';
-            
-            // Слушаем только папку текущего юзера
-            onSnapshot(doc(db, "users_data", currentUid), (snap) => {
-    if (snap.exists()) {
-        const d = snap.data();
-        window.plans = d.plans || [];
-        window.storage = d.storage || [];
-        // Если ID есть в базе — ставим его, если нет — очищаем поле
-        document.getElementById('in_tg_id').value = d.tgId || ""; 
-        render();
-    } else {
-        // Логика для абсолютно нового аккаунта
+        let currentUid = null; 
         window.plans = [];
         window.storage = [];
-        document.getElementById('in_tg_id').value = ""; // Очищаем поле для нового юзера
-        render();
-    }
-});
-        } else {
-            currentUid = null;
-            document.getElementById('login-screen').style.display = 'flex';
-            document.getElementById('app-screen').style.display = 'none';
+        let editPlanId = null;
+        let editStorageId = null;
+
+        window.toggleTheme = () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            document.getElementById('theme-btn').innerText = isDark ? "☀️ Светлая тема" : "🌙 Темная тема";
         }
-    });
+        if(localStorage.getItem('theme') === 'dark') toggleTheme();
 
-    // СИНХРОНИЗАЦИЯ (теперь использует currentUid)
-    async function syncWithCloud() {
-        if(!currentUid) return;
-        try {
-            await setDoc(doc(db, "users_data", currentUid), {
-                plans: window.plans,
-                storage: window.storage,
-                tgId: document.getElementById('in_tg_id').value, // Берем ID из поля в Сервисе
-                lastSync: new Date()
-            }, { merge: true });
-        } catch (e) { console.error("Sync Error:", e); }
-    }
-    window.syncWithCloud = syncWithCloud;
+        document.getElementById('btn-login').onclick = () => signInWithPopup(auth, provider);
+        window.logout = () => signOut(auth);
 
-    window.showTab = (tab) => {
-        ['t_p', 't_s', 't_c'].forEach(id => document.getElementById(id).style.display = 'none');
-        ['b_p', 'b_s', 'b_c'].forEach(id => document.getElementById(id).className = '');
-        document.getElementById('t_' + tab).style.display = 'block';
-        document.getElementById('b_' + tab).className = 'active';
-    }
-
-    window.savePlan = async () => {
-        const txt = document.getElementById('in_p_t').value.trim();
-        const dat = document.getElementById('in_p_d').value;
-        const tim = document.getElementById('in_p_tm').value;
-        const pri = parseInt(document.getElementById('in_p_pri').value);
-        if(!txt) return;
-
-        if(editPlanId) {
-            const idx = window.plans.findIndex(i => String(i.id) === String(editPlanId));
-            if(idx !== -1) window.plans[idx] = { ...window.plans[idx], t: txt, d: dat, tm: tim, pri: pri };
-            editPlanId = null;
-            document.getElementById('p_title').innerText = "➕ НОВЫЙ ПЛАН";
-        } else {
-            window.plans.push({ id: Date.now(), t: txt, d: dat, tm: tim, pri: pri, notified: false });
-        }
-        render();
-        await syncWithCloud();
-        document.getElementById('in_p_t').value = '';
-    }
-
-    window.saveStorage = async () => {
-        const itm = document.getElementById('in_s_i').value.trim();
-        const loc = document.getElementById('in_s_l').value.trim();
-        const cat = document.getElementById('in_s_cat').value;
-        if(!itm) return;
-
-        if(editStorageId) {
-            const idx = window.storage.findIndex(i => String(i.id) === String(editStorageId));
-            if(idx !== -1) window.storage[idx] = { ...window.storage[idx], i: itm, l: loc, cat: cat };
-            editStorageId = null;
-            document.getElementById('s_title').innerText = "📦 ГДЕ ЛЕЖИТ?";
-        } else {
-            window.storage.push({ id: Date.now(), i: itm, l: loc, cat: cat });
-        }
-        render();
-        await syncWithCloud();
-        document.getElementById('in_s_i').value = '';
-        document.getElementById('in_s_l').value = '';
-    }
-
-    // ИСПРАВЛЕННОЕ УДАЛЕНИЕ (теперь удаляет и ботовские записи)
-    window.removeItem = async (type, id) => {
-        if(!confirm("Удалить?")) return;
-        const sId = String(id);
-        if(type === 'p') {
-            window.plans = window.plans.filter(i => String(i.id) !== sId);
-        } else {
-            window.storage = window.storage.filter(i => String(i.id) !== sId);
-        }
-        render();
-        await syncWithCloud();
-    }
-        window.saveTgId = async () => {
-    const tgIdValue = document.getElementById('in_tg_id').value.trim();
-    if (!tgIdValue) {
-        alert("Введите ваш Telegram ID");
-        return;
-    }
-    if (!/^\d+$/.test(tgIdValue)) {
-        alert("Telegram ID должен быть числовым значением!");
-        return;
-    }
-
-    try {
-        // Используем setDoc с { merge: true }, чтобы не затереть склад и планы
-        await setDoc(doc(db, "users_data", currentUid), {
-            tgId: tgIdValue,
-            lastSync: new Date()
-        }, { merge: true });
-
-        alert("Telegram ID успешно привязан!");
-    } catch (e) {
-        console.error("Ошибка сохранения TG ID:", e);
-        alert("Ошибка при сохранении");
-    }
-};
-
-
-    window.render = () => {
-    const sP = document.getElementById('search_p').value.toLowerCase();
-    const sS = document.getElementById('search_s').value.toLowerCase();
-    
-    const now = new Date();
-    // Даты в формате ГГГГ-ММ-ДД для сравнения
-    const todayStr = now.toLocaleDateString('sv');
-    
-    const tom = new Date(); tom.setDate(now.getDate() + 1);
-    const tomorrowStr = tom.toLocaleDateString('sv');
-    
-    const aft = new Date(); aft.setDate(now.getDate() + 2);
-    const afterTomorrowStr = aft.toLocaleDateString('sv');
-
-    const soonLimit = new Date(); soonLimit.setDate(now.getDate() + 7);
-
-    let activePlans = [], archivedPlans = [];
-
-    // --- ОБРАБОТКА ПЛАНОВ ---
-    window.plans.forEach(item => {
-        if (sP && !escapeHTML(item.t).toLowerCase().includes(sP)) return;
-        
-        let statusLabel = '', archived = false;
-        
-        if (item.d) {
-            const evDate = new Date(item.d + 'T' + (item.tm || '00:00'));
-            const diffMs = evDate - now;
-
-            // Если прошло более 24 часов (86400000 мс)
-            if (diffMs < -86400000) {
-                archived = true;
-            }
-            
-            // Определяем метку времени
-            if (item.d === todayStr) {
-                statusLabel = '<span class="status-today">СЕГОДНЯ! </span>';
-            } else if (item.d === tomorrowStr) {
-                statusLabel = '<span class="status-tomorrow">ЗАВТРА </span>';
-            } else if (item.d === afterTomorrowStr) {
-                statusLabel = '<span class="status-after-tomorrow">ПОСЛЕЗАВТРА </span>';
-            } else if (evDate > now && evDate <= soonLimit) {
-                statusLabel = '<span class="status-soon">СКОРО </span>';
-            }
-        }
-
-        const pCls = item.pri === 3 ? 'card-high' : item.pri === 2 ? 'card-med' : 'card-low';
-        
-        const html = `
-            <div class="card ${pCls} ${archived ? 'card-archived' : ''}">
-                <button class="edit-btn" onclick="editPlan('${escapeHTML(String(item.id))}')">✏️</button>
-                <button class="del-btn" onclick="removeItem('p', '${escapeHTML(String(item.id))}')">X</button>
-                <div>${statusLabel}<b style="display: inline-block; vertical-align: top;">${escapeHTML(item.t)}</b></div>
-                <small style="display: block; margin-top: 5px;">📅 ${escapeHTML(item.d || '--')} ⏰ ${escapeHTML(item.tm || '--:--')}</small>
-            </div>`;
-
-        if (archived) {
-            archivedPlans.push({ html, sortKey: (item.d + item.tm) });
-        } else {
-            activePlans.push({ html, sortKey: (item.d + item.tm) });
-        }
-    });
-
-    // Сортируем: активные по возрастанию, архивные вниз
-    activePlans.sort((a, b) => a.sortKey.localeCompare(b.sortKey));
-    archivedPlans.sort((a, b) => b.sortKey.localeCompare(a.sortKey));
-
-    const finalPlansHTML = activePlans.map(x => x.html).join('') + archivedPlans.map(x => x.html).join('');
-    document.getElementById('list_p').innerHTML = finalPlansHTML || '<p>Список пуст</p>';
-
-    // --- ОБРАБОТКА СКЛАДА (без изменений) ---
-    let h_s = '';
-    window.storage.forEach(item => {
-        if (sS && !(escapeHTML(item.i) + escapeHTML(item.l)).toLowerCase().includes(sS)) return;
-        h_s += `<div class="card">
-            <button class="edit-btn" onclick="editS('${escapeHTML(String(item.id))}')">✏️</button>
-            <button class="del-btn" onclick="removeItem('s', '${escapeHTML(String(item.id))}')">X</button>
-            <span class="category-badge">${escapeHTML(item.cat || 'Общее')}</span><b>${escapeHTML(item.i)}</b><br>
-            <small>📍 ${escapeHTML(item.l || '—')}</small>
-        </div>`;
-    });
-    document.getElementById('list_s').innerHTML = h_s || '<p>Склад пуст</p>';
-}
-
-    window.editPlan = (id) => {
-        const i = window.plans.find(x => String(x.id) === String(id));
-        if(!i) return;
-        document.getElementById('in_p_t').value = i.t;
-        document.getElementById('in_p_d').value = i.d;
-        document.getElementById('in_p_tm').value = i.tm;
-        document.getElementById('in_p_pri').value = i.pri || 2;
-        editPlanId = String(id);
-        document.getElementById('p_title').innerText = "✏️ РЕДАКТИРОВАНИЕ";
-        window.scrollTo(0,0);
-    }
-
-    window.editS = (id) => {
-        const i = window.storage.find(x => String(x.id) === String(id));
-        if(!i) return;
-        document.getElementById('in_s_i').value = i.i;
-        document.getElementById('in_s_l').value = i.l;
-        document.getElementById('in_s_cat').value = i.cat || 'Общее';
-        editStorageId = String(id);
-        document.getElementById('s_title').innerText = "✏️ РЕДАКТИРОВАНИЕ";
-        window.scrollTo(0,0);
-    }
-
-    window.download = () => {
-        const data = {p: window.plans, s: window.storage, uid: currentUid};
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(new Blob([JSON.stringify(data)], {type:'text/plain'}));
-        a.download = `backup_${new Date().toISOString().slice(0,10)}.txt`;
-        a.click();
-    }
-
-    window.requestNotif = () => {
-        Notification.requestPermission();
-        const audio = document.getElementById('alarmSound');
-        audio.play().then(() => audio.pause());
-        alert("Звук проверен");
-    }
-
-    setInterval(() => {
-        const now = new Date();
-        const d = now.toISOString().split('T')[0];
-        const t = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
-        window.plans.forEach(async (i) => {
-            if(i.d === d && i.tm === t && !i.notified) {
-                document.getElementById('alarmSound').play();
-                alert("НАПОМИНАНИЕ: " + i.t);
-                i.notified = true;
-                await syncWithCloud();
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUid = user.uid;
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('app-screen').style.display = 'block';
+                
+                onSnapshot(doc(db, "users_data", currentUid), (snap) => {
+                    if (snap.exists()) {
+                        const d = snap.data();
+                        window.plans = d.plans || [];
+                        window.storage = d.storage || [];
+                        document.getElementById('in_tg_id').value = d.tgId || ""; 
+                        render();
+                    } else {
+                        window.plans = [];
+                        window.storage = [];
+                        document.getElementById('in_tg_id').value = "";
+                        render();
+                    }
+                });
+            } else {
+                currentUid = null;
+                document.getElementById('login-screen').style.display = 'flex';
+                document.getElementById('app-screen').style.display = 'none';
             }
         });
-    }, 30000);
-</script>
+
+        async function syncWithCloud() {
+            if(!currentUid) return;
+            try {
+                await setDoc(doc(db, "users_data", currentUid), {
+                    plans: window.plans,
+                    storage: window.storage,
+                    tgId: document.getElementById('in_tg_id').value,
+                    lastSync: new Date()
+                }, { merge: true });
+            } catch (e) { console.error("Sync Error:", e); }
+        }
+        window.syncWithCloud = syncWithCloud;
+
+        window.showTab = (tab) => {
+            ['t_p', 't_s', 't_c'].forEach(id => document.getElementById(id).style.display = 'none');
+            ['b_p', 'b_s', 'b_c'].forEach(id => document.getElementById(id).className = '');
+            document.getElementById('t_' + tab).style.display = 'block';
+            document.getElementById('b_' + tab).className = 'active';
+        }
+
+        window.savePlan = async () => {
+            const txt = document.getElementById('in_p_t').value.trim();
+            const dat = document.getElementById('in_p_d').value;
+            const tim = document.getElementById('in_p_tm').value;
+            const pri = parseInt(document.getElementById('in_p_pri').value);
+            if(!txt) return;
+
+            if(editPlanId) {
+                const idx = window.plans.findIndex(i => String(i.id) === String(editPlanId));
+                if(idx !== -1) window.plans[idx] = { ...window.plans[idx], t: txt, d: dat, tm: tim, pri: pri };
+                editPlanId = null;
+                document.getElementById('p_title').innerText = "➕ НОВЫЙ ПЛАН";
+            } else {
+                window.plans.push({ id: Date.now(), t: txt, d: dat, tm: tim, pri: pri, notified: false });
+            }
+            render();
+            await syncWithCloud();
+            document.getElementById('in_p_t').value = '';
+        }
+
+        window.saveStorage = async () => {
+            const itm = document.getElementById('in_s_i').value.trim();
+            const loc = document.getElementById('in_s_l').value.trim();
+            const cat = document.getElementById('in_s_cat').value;
+            if(!itm) return;
+
+            if(editStorageId) {
+                const idx = window.storage.findIndex(i => String(i.id) === String(editStorageId));
+                if(idx !== -1) window.storage[idx] = { ...window.storage[idx], i: itm, l: loc, cat: cat };
+                editStorageId = null;
+                document.getElementById('s_title').innerText = "📦 ГДЕ ЛЕЖИТ?";
+            } else {
+                window.storage.push({ id: Date.now(), i: itm, l: loc, cat: cat });
+            }
+            render();
+            await syncWithCloud();
+            document.getElementById('in_s_i').value = '';
+            document.getElementById('in_s_l').value = '';
+        }
+
+        window.removeItem = async (type, id) => {
+            if(!confirm("Удалить?")) return;
+            const sId = String(id);
+            if(type === 'p') {
+                window.plans = window.plans.filter(i => String(i.id) !== sId);
+            } else {
+                window.storage = window.storage.filter(i => String(i.id) !== sId);
+            }
+            render();
+            await syncWithCloud();
+        }
+
+        window.saveTgId = async () => {
+            const tgIdValue = document.getElementById('in_tg_id').value.trim();
+            if (!tgIdValue) { alert("Введите ваш Telegram ID"); return; }
+            try {
+                await setDoc(doc(db, "users_data", currentUid), {
+                    tgId: tgIdValue,
+                    lastSync: new Date()
+                }, { merge: true });
+                alert("Telegram ID успешно привязан!");
+            } catch (e) { alert("Ошибка при сохранении"); }
+        };
+
+        window.render = () => {
+            const sP = document.getElementById('search_p').value.toLowerCase();
+            const sS = document.getElementById('search_s').value.toLowerCase();
+            const now = new Date();
+            const todayStr = now.toLocaleDateString('sv');
+            
+            const tom = new Date(); tom.setDate(now.getDate() + 1);
+            const tomorrowStr = tom.toLocaleDateString('sv');
+            
+            const aft = new Date(); aft.setDate(now.getDate() + 2);
+            const afterTomorrowStr = aft.toLocaleDateString('sv');
+
+            const soonLimit = new Date(); soonLimit.setDate(now.getDate() + 7);
+
+            let activePlans = [], archivedPlans = [];
+
+            window.plans.forEach(item => {
+                if (sP && !escapeHTML(item.t).toLowerCase().includes(sP)) return;
+                let statusLabel = '', archived = false;
+                if (item.d) {
+                    const evDate = new Date(item.d + 'T' + (item.tm || '00:00'));
+                    if (evDate - now < -86400000) archived = true;
+                    
+                    if (item.d === todayStr) statusLabel = '<span class="status-today">СЕГОДНЯ! </span>';
+                    else if (item.d === tomorrowStr) statusLabel = '<span class="status-tomorrow">ЗАВТРА </span>';
+                    else if (item.d === afterTomorrowStr) statusLabel = '<span class="status-after-tomorrow">ПОСЛЕЗАВТРА </span>';
+                    else if (evDate > now && evDate <= soonLimit) statusLabel = '<span class="status-soon">СКОРО </span>';
+                }
+
+                const pCls = item.pri === 3 ? 'card-high' : item.pri === 2 ? 'card-med' : 'card-low';
+                const html = `<div class="card ${pCls} ${archived ? 'card-archived' : ''}">
+                    <button class="edit-btn" onclick="editPlan('${escapeHTML(String(item.id))}')">✏️</button>
+                    <button class="del-btn" onclick="removeItem('p', '${escapeHTML(String(item.id))}')">X</button>
+                    <div>${statusLabel}<b style="display: inline-block; vertical-align: top;">${escapeHTML(item.t)}</b></div>
+                    <small style="display: block; margin-top: 5px;">📅 ${escapeHTML(item.d || '--')} ⏰ ${escapeHTML(item.tm || '--:--')}</small>
+                </div>`;
+                if (archived) archivedPlans.push({ html, sortKey: (item.d + item.tm) });
+                else activePlans.push({ html, sortKey: (item.d + item.tm) });
+            });
+
+            activePlans.sort((a, b) => a.sortKey.localeCompare(b.sortKey));
+            archivedPlans.sort((a, b) => b.sortKey.localeCompare(a.sortKey));
+
+            document.getElementById('list_p').innerHTML = (activePlans.map(x => x.html).join('') + archivedPlans.map(x => x.html).join('')) || '<p>Список пуст</p>';
+
+            let h_s = '';
+            const sortedStorage = [...window.storage].sort((a, b) => (a.i || "").localeCompare(b.i || ""));
+
+            sortedStorage.forEach(item => {
+                if (sS && !(escapeHTML(item.i) + escapeHTML(item.l)).toLowerCase().includes(sS)) return;
+                const icon = catIcons[item.cat] || "📦";
+                h_s += `<div class="card">
+                    <button class="edit-btn" onclick="editS('${escapeHTML(String(item.id))}')">✏️</button>
+                    <button class="del-btn" onclick="removeItem('s', '${escapeHTML(String(item.id))}')">X</button>
+                    <span class="category-badge">${icon} ${escapeHTML(item.cat || 'Общее')}</span>
+                    <b>${escapeHTML(item.i)}</b><br>
+                    <small>📍 ${escapeHTML(item.l || '—')}</small>
+                </div>`;
+            });
+            document.getElementById('list_s').innerHTML = h_s || '<p>Склад пуст</p>';
+        }
+
+        window.editPlan = (id) => {
+            const i = window.plans.find(x => String(x.id) === String(id));
+            if(!i) return;
+            document.getElementById('in_p_t').value = i.t;
+            document.getElementById('in_p_d').value = i.d;
+            document.getElementById('in_p_tm').value = i.tm;
+            document.getElementById('in_p_pri').value = i.pri || 2;
+            editPlanId = String(id);
+            document.getElementById('p_title').innerText = "✏️ РЕДАКТИРОВАНИЕ";
+            window.scrollTo(0,0);
+        }
+
+        window.editS = (id) => {
+            const i = window.storage.find(x => String(x.id) === String(id));
+            if(!i) return;
+            document.getElementById('in_s_i').value = i.i;
+            document.getElementById('in_s_l').value = i.l;
+            document.getElementById('in_s_cat').value = i.cat || 'Общее';
+            editStorageId = String(id);
+            document.getElementById('s_title').innerText = "✏️ РЕДАКТИРОВАНИЕ";
+            window.scrollTo(0,0);
+        }
+
+        window.download = () => {
+            const data = {p: window.plans, s: window.storage, uid: currentUid};
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(new Blob([JSON.stringify(data)], {type:'text/plain'}));
+            a.download = `backup_${new Date().toISOString().slice(0,10)}.txt`;
+            a.click();
+        }
+
+        window.requestNotif = () => {
+            Notification.requestPermission();
+            const audio = document.getElementById('alarmSound');
+            audio.play().then(() => audio.pause());
+            alert("Звук проверен");
+        }
+
+        setInterval(() => {
+            const now = new Date();
+            const d = now.toISOString().split('T')[0];
+            const t = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+            window.plans.forEach(async (i) => {
+                if(i.d === d && i.tm === t && !i.notified) {
+                    document.getElementById('alarmSound').play();
+                    alert("НАПОМИНАНИЕ: " + i.t);
+                    i.notified = true;
+                    await syncWithCloud();
+                }
+            });
+        }, 30000);
+
+        window.addEventListener('online', () => {
+            document.getElementById('net-dot').className = 'dot online';
+            document.getElementById('net-text').innerText = 'В сети';
+        });
+
+        window.addEventListener('offline', () => {
+            document.getElementById('net-dot').className = 'dot offline';
+            document.getElementById('net-text').innerText = 'Оффлайн';
+        });
+    </script>
+</body>
+</html>
