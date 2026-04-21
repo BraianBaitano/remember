@@ -110,13 +110,15 @@
 
     <div id="app-screen" style="display:none">
         <div class="header-controls">
-            <div class="network-status">
-                <span id="net-dot" class="dot online"></span>
-                <span id="net-text">В сети</span>
-            </div>
-            <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">🌙 Темная тема</button>
-            <button onclick="logout()" style="background:none; border:none; color: #e74c3c; cursor:pointer; font-size: 14px;">Выйти</button>
-        </div>
+    <div class="network-status">
+        <span id="net-dot" class="dot online"></span>
+        <span id="net-text">В сети</span>
+    </div>
+    <div id="clock" style="font-weight: bold; font-family: monospace; font-size: 14px;">00:00:00</div>
+    
+    <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">🌙 Темная тема</button>
+    <button onclick="logout()" style="background:none; border:none; color: #e74c3c; cursor:pointer; font-size: 14px;">Выйти</button>
+</div>
 
         <div class="tabs">
             <button id="b_p" class="active" onclick="showTab('p')">ПЛАНЫ</button>
@@ -228,12 +230,13 @@
     <audio id="alarmSound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    // 1. Добавьте импорт функции enableIndexedDbPersistence сюда:
+    import { getFirestore, doc, setDoc, onSnapshot, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyD2BEG9Iuwn_B4QypbNcUnE-AwFV8BG1lg",
+    const firebaseConfig = {
+        apiKey: "AIzaSyD2BEG9Iuwn_B4QypbNcUnE-AwFV8BG1lg",
             authDomain: "baitan-ver1.firebaseapp.com",
             projectId: "baitan-ver1",
             storageBucket: "baitan-ver1.firebasestorage.app",
@@ -241,11 +244,23 @@
             appId: "1:847775039275:web:4d15455caa9a6efcf5cf6e"
         };
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const provider = new GoogleAuthProvider();
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
+    // 2. Вставьте этот блок СРАЗУ после инициализации db:
+    enableIndexedDbPersistence(db).catch((err) => {
+        if (err.code == 'failed-precondition') {
+            // Вероятно, открыто много вкладок
+            console.error("Оффлайн режим не включен: открыто слишком много вкладок");
+        } else if (err.code == 'unimplemented') {
+            // Браузер не поддерживает (редко для современных мобилок)
+            console.error("Браузер не поддерживает оффлайн режим");
+        }
+    });
+
+    const provider = new GoogleAuthProvider();
+    
         let currentUid = null;
         window.plans = [];
         window.storage = [];
@@ -311,12 +326,22 @@
         });
 
         async function syncWithCloud() {
-            if(!currentUid) return;
-            await setDoc(doc(db, "users_data", currentUid), {
-                plans: window.plans, storage: window.storage,
-                tgId: document.getElementById('in_tg_id').value, lastSync: new Date()
-            }, { merge: true });
-        }
+    if (!currentUid) return;
+    try {
+        // Указываем путь к документу пользователя в коллекции users_data
+        await setDoc(doc(db, "users_data", currentUid), {
+            plans: window.plans,
+            storage: window.storage,
+            // Сохраняем и TG ID, чтобы он не затирался при обновлении списков
+            tgId: document.getElementById('in_tg_id').value.trim() 
+        }, { merge: true });
+        console.log("Данные синхронизированы");
+    } catch (e) {
+        console.error("Ошибка синхронизации:", e);
+        // Небольшой лайфхак: если оффлайн, Firebase сам сохранит изменения в кэш 
+        // и отправит их позже, если включен Offline Persistence.
+    }
+}
 
         window.savePlan = async () => {
             const txt = document.getElementById('in_p_t').value.trim();
@@ -499,11 +524,14 @@
         };
 
         window.requestNotif = () => {
-            Notification.requestPermission();
-            const audio = document.getElementById('alarmSound');
-            audio.play().then(() => audio.pause());
-            alert("Звук проверен");
-        };
+    Notification.requestPermission().then(permission => {
+        if (permission === "granted") {
+            new Notification("VIP Склад", { body: "Уведомления включены!" });
+        }
+    });
+    const audio = document.getElementById('alarmSound');
+    audio.play().catch(e => console.log("Нужен жест пользователя для звука"));
+};
 
         setInterval(() => {
             const now = new Date();
@@ -524,6 +552,26 @@
 
         window.addEventListener('online', () => { document.getElementById('net-dot').className = 'dot online'; document.getElementById('net-text').innerText = 'В сети'; });
         window.addEventListener('offline', () => { document.getElementById('net-dot').className = 'dot offline'; document.getElementById('net-text').innerText = 'Оффлайн'; });
-    </script>
+    function startClock() {
+    const clockElement = document.getElementById('clock');
+    
+    function update() {
+        const now = new Date();
+        // Форматируем время (HH:MM:SS)
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        
+        clockElement.textContent = `${hours}:${minutes}:${seconds}`;
+    }
+
+    // Запускаем сразу и ставим интервал на 1 секунду
+    update();
+    setInterval(update, 1000);
+}
+
+// Запускаем часы
+startClock();
+</script>
 </body>
 </html>
