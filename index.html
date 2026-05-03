@@ -533,45 +533,62 @@
     audio.play().catch(e => console.log("Нужен жест пользователя для звука"));
 };
 
-        setInterval(() => {
-            const now = new Date();
-            const d = now.toLocaleDateString('sv');
-            const t = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
-            window.plans.forEach(async (i) => {
-                if(i.d === d && i.tm === t && !i.notified) {
-                    document.getElementById('alarmSound').play();
-                    alert("НАПОМИНАНИЕ: " + i.t);
-                    i.notified = true; 
-                    await syncWithCloud();
-                }
-            });
-        }, 30000);
+        // Кнопки и сетевой статус (оставляем как есть)
+    document.getElementById('btn-login').onclick = () => signInWithPopup(auth, provider);
+    window.logout = () => signOut(auth);
 
-        document.getElementById('btn-login').onclick = () => signInWithPopup(auth, provider);
-        window.logout = () => signOut(auth);
+    window.addEventListener('online', () => { 
+        document.getElementById('net-dot').className = 'dot online'; 
+        document.getElementById('net-text').innerText = 'В сети'; 
+    });
+    window.addEventListener('offline', () => { 
+        document.getElementById('net-dot').className = 'dot offline'; 
+        document.getElementById('net-text').innerText = 'Оффлайн'; 
+    });
 
-        window.addEventListener('online', () => { document.getElementById('net-dot').className = 'dot online'; document.getElementById('net-text').innerText = 'В сети'; });
-        window.addEventListener('offline', () => { document.getElementById('net-dot').className = 'dot offline'; document.getElementById('net-text').innerText = 'Оффлайн'; });
-    function startClock() {
-    const clockElement = document.getElementById('clock');
-    
-    function update() {
+    // Логика проверки планов (новый код)
+    async function checkPlans() {
         const now = new Date();
-        // Форматируем время (HH:MM:SS)
-        const hours = String(now.getHours()).padStart(2, '0');
-        const minutes = String(now.getMinutes()).padStart(2, '0');
-        const seconds = String(now.getSeconds()).padStart(2, '0');
+        const d = now.toISOString().split('T')[0];
+        const t = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
         
-        clockElement.textContent = `${hours}:${minutes}:${seconds}`;
+        window.plans.forEach(async (i) => {
+            if(i.d === d && i.tm === t && !i.notified) {
+                document.getElementById('alarmSound').play();
+                alert("НАПОМИНАНИЕ: " + i.t);
+                i.notified = true;
+                await syncWithCloud();
+            }
+        });
     }
 
-    // Запускаем сразу и ставим интервал на 1 секунду
-    update();
-    setInterval(update, 1000);
-}
+    function startSmartInterval() {
+        const now = new Date();
+        // Считаем миллисекунды до начала следующей минуты
+        const msUntilNextMinute = (60 - now.getSeconds()) * 1000 - now.getMilliseconds();
+        
+        setTimeout(() => {
+            checkPlans();
+            setInterval(checkPlans, 60000);
+        }, msUntilNextMinute);
+    }
 
-// Запускаем часы
-startClock();
+    // Запускаем проверку планов и часы
+    startSmartInterval();
+
+    function startClock() {
+        const clockElement = document.getElementById('clock');
+        function update() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            clockElement.textContent = `${hours}:${minutes}:${seconds}`;
+        }
+        update();
+        setInterval(update, 1000);
+    }
+    startClock();
 </script>
 </body>
 </html>
